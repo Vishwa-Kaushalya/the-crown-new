@@ -1,0 +1,17 @@
+{
+    "active_id": "62845b43",
+    "tournaments": [
+        {
+            "id": "62845b43",
+            "name": "Default Tournament",
+            "created": "2026-04-14",
+            "status": "active"
+        },
+        {
+            "id": "a15e2ce6",
+            "name": "the crown season 2",
+            "created": "2026-04-14",
+            "status": "inactive"
+        }
+    ]
+}

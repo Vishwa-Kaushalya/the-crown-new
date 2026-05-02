@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Score Match | The Crown</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+    </style>
+</head>
+<body class="text-slate-200 min-h-screen py-10 px-4 bg-slate-900 flex justify-center items-center">
+
+    <div class="glass shadow-2xl rounded-2xl p-8 max-w-4xl w-full border-t-4 border-amber-500">
+        
+        <div class="flex justify-between items-center mb-8 border-b border-slate-700 pb-4">
+            <h1 class="text-2xl font-bold font-serif text-amber-500 uppercase tracking-widest flex items-center gap-3">
+                <svg class="h-6 w-auto text-amber-500" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/>
+                </svg>
+                Score Match ({{ round_name }})
+            </h1>
+            <a href="/matches" class="text-sm font-bold text-slate-400 hover:text-white uppercase tracking-wider transition-colors">← Back to Matches</a>
+        </div>
+
+        <form action="/admin/submit_score/{{ match.id }}" method="post" class="space-y-8">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Team 1 -->
+                <div class="bg-slate-900 border border-slate-700 rounded-lg p-5">
+                    <h3 class="text-blue-400 font-bold uppercase tracking-widest text-center border-b border-slate-700/50 pb-3 mb-5">Team 1</h3>
+                    <div class="space-y-4">
+                        {% for member in match.team1 %}
+                        <div class="flex justify-between items-center bg-slate-800/50 p-3 rounded border border-slate-700/50">
+                            {% if member.startswith("SWING_") %}
+                                <span class="text-slate-500 text-sm italic">System Swing (Not Scored)</span>
+                            {% else %}
+                                <span class="font-bold text-slate-300">{{ member }}</span>
+                                <div class="w-24">
+                                    <input type="number" step="0.1" name="marks_{{ member }}" placeholder="Marks" required class="w-full bg-slate-900 border border-slate-600 rounded px-2 py-1 text-center font-bold focus:ring-amber-500 focus:border-amber-500">
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Team 2 -->
+                <div class="bg-slate-900 border border-slate-700 rounded-lg p-5">
+                    <h3 class="text-red-400 font-bold uppercase tracking-widest text-center border-b border-slate-700/50 pb-3 mb-5">Team 2</h3>
+                    <div class="space-y-4">
+                        {% for member in match.team2 %}
+                        <div class="flex justify-between items-center bg-slate-800/50 p-3 rounded border border-slate-700/50">
+                            {% if member.startswith("SWING_") %}
+                                <span class="text-slate-500 text-sm italic">System Swing (Not Scored)</span>
+                            {% else %}
+                                <span class="font-bold text-slate-300">{{ member }}</span>
+                                <div class="w-24">
+                                    <input type="number" step="0.1" name="marks_{{ member }}" placeholder="Marks" required class="w-full bg-slate-900 border border-slate-600 rounded px-2 py-1 text-center font-bold focus:ring-amber-500 focus:border-amber-500">
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Winner Selection -->
+            <div class="bg-slate-800/40 border border-slate-700 p-6 rounded-lg">
+                <h3 class="text-amber-500 font-bold uppercase tracking-widest text-center mb-4 text-lg">Declare Winning Team</h3>
+                <p class="text-slate-400 text-xs text-center mb-4">The selected team will automatically receive +1 Win to all their debaters on the leaderboard.</p>
+                
+                <div class="flex justify-center gap-6">
+                    <label class="cursor-pointer">
+                        <input type="radio" name="winner" value="1" class="peer sr-only">
+                        <div class="w-40 py-3 text-center rounded-lg border-2 border-slate-600 bg-slate-900 text-slate-400 font-bold transition-all peer-checked:border-blue-500 peer-checked:bg-blue-900/30 peer-checked:text-blue-400 hover:border-slate-500 uppercase tracking-widest">Team 1</div>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input type="radio" name="winner" value="" class="peer sr-only" checked>
+                        <div class="w-40 py-3 text-center rounded-lg border-2 border-slate-600 bg-slate-900 text-slate-400 font-bold transition-all peer-checked:border-slate-400 peer-checked:bg-slate-700 peer-checked:text-slate-200 hover:border-slate-500 uppercase tracking-widest">Tie / None</div>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input type="radio" name="winner" value="2" class="peer sr-only">
+                        <div class="w-40 py-3 text-center rounded-lg border-2 border-slate-600 bg-slate-900 text-slate-400 font-bold transition-all peer-checked:border-red-500 peer-checked:bg-red-900/30 peer-checked:text-red-400 hover:border-slate-500 uppercase tracking-widest">Team 2</div>
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full py-4 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-slate-900 font-bold font-serif uppercase tracking-widest rounded-lg transition-all shadow-lg text-lg">
+                Finalize Debate Scores
+            </button>
+        </form>
+    </div>
+
+</body>
+</html>

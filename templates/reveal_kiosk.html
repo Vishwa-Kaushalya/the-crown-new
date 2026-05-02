@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Crown | Motion Reveal Broadcast</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body { background-color: #020617; overflow: hidden; font-family: 'Inter', sans-serif; cursor: none; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        
+        .pulse-bg {
+            position: absolute; inset: 0;
+            background: radial-gradient(circle at center, rgba(245, 158, 11, 0.15) 0%, transparent 60%);
+            opacity: 0; transition: opacity 0.1s;
+            z-index: 0; pointer-events: none;
+        }
+
+        #motion-text {
+            text-shadow: 0 0 20px rgba(0,0,0,0.8);
+            filter: blur(0px);
+            transition: filter 0.05s, transform 0.05s, color 0.5s;
+            z-index: 10; position: relative;
+        }
+        
+        .final-state {
+            color: #ffffff !important;
+            text-shadow: 0 0 40px rgba(245, 158, 11, 0.6), 0 0 80px rgba(245, 158, 11, 0.4) !important;
+            transform: scale(1.05);
+        }
+
+        .blur-state {
+            filter: blur(3px) brightness(1.5);
+            transform: scale(0.98);
+        }
+        
+        #overlay-flash {
+            position: fixed; inset: 0; background: white; z-index: 50; opacity: 0; pointer-events: none;
+        }
+
+        /* Ambient scanline effect for standby */
+        .scanline {
+            width: 100%; height: 10px; opacity: 0.1; background: rgba(245,158,11,0.5);
+            position: absolute; z-index: 100; pointer-events: none;
+            animation: scan 10s linear infinite;
+        }
+        @keyframes scan { 0% { top: -10%; } 100% { top: 110%; } }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center relative select-none">
+
+    <!-- Ambient Visuals -->
+    <div class="scanline hidden" id="scan-bar"></div>
+    <div class="pulse-bg" id="ambient-light"></div>
+    <div id="overlay-flash"></div>
+
+    <!-- The Header (Hidden until broadcast targets it) -->
+    <div class="absolute top-10 w-full text-center z-10 opacity-0 transition-opacity duration-1000" id="header">
+        <h2 class="text-amber-500 text-3xl md:text-5xl font-black uppercase tracking-[0.5em] drop-shadow-[0_0_15px_rgba(245,158,11,0.5)]">Official Motion</h2>
+        <div class="text-slate-400 text-xl md:text-2xl font-bold uppercase tracking-widest mt-4" id="round-label"></div>
+    </div>
+
+    <!-- INITIALIZATION PROTOCOL -->
+    <div id="init-screen" class="z-50 text-center flex flex-col items-center gap-8 cursor-pointer w-full h-full justify-center absolute bg-slate-950/90 backdrop-blur-sm">
+        <div class="w-24 h-24 rounded-full border-4 border-amber-500/30 flex items-center justify-center animate-pulse shadow-[0_0_50px_rgba(245,158,11,0.2)]">
+            <svg class="w-10 h-10 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+        </div>
+        <h1 class="text-2xl font-black text-amber-500 uppercase tracking-[0.3em]">Initialize Kiosk Subsystem</h1>
+        <p class="text-slate-500 font-mono text-xs uppercase tracking-widest animate-bounce">Click anywhere to engage audio engine and bind projector</p>
+    </div>
+
+    <!-- STANDBY PROTOCOL -->
+    <div id="standby-screen" class="z-30 text-center hidden flex flex-col items-center gap-6 absolute">
+        <svg class="w-16 h-16 text-slate-700 animate-spin-slow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div>
+            <h1 class="text-xl font-bold text-slate-500 uppercase tracking-[0.5em]">Awaiting Broadcast</h1>
+            <p class="text-slate-600 font-mono text-[10px] uppercase tracking-widest mt-2">Listening to encrypted master signal...</p>
+        </div>
+    </div>
+
+    <!-- ACTIVE CIPHER REVEAL CONTAINER -->
+    <div class="max-w-6xl w-full px-8 z-10 text-center flex items-center justify-center flex-1 relative overflow-hidden min-h-[400px]">
+        
+        <!-- HORIZONTAL ENVELOPE TRACK -->
+        <div id="envelope-track" class="absolute left-[50%] flex items-center gap-16 transition-transform hidden" style="will-change: transform;">
+            <!-- JS dynamically injects envelopes here -->
+        </div>
+        
+        <p id="motion-text" class="text-4xl md:text-6xl lg:text-7xl font-serif font-black text-slate-600 leading-tight italic hidden absolute inset-0 flex items-center justify-center">
+            <!-- Payload injeced here -->
+        </p>
+    </div>
+
+    <script>
+        // DOM Nodes
+        const initScreen = document.getElementById('init-screen');
+        const standbyScreen = document.getElementById('standby-screen');
+        const motionEl = document.getElementById('motion-text');
+        const ambientLight = document.getElementById('ambient-light');
+        const header = document.getElementById('header');
+        const roundLabel = document.getElementById('round-label');
+        const flashOverlay = document.getElementById('overlay-flash');
+        const scanBar = document.getElementById('scan-bar');
+        
+        let POLLING_INTERVAL;
+        let lastPlayedMotionId = null;
+
+        // --- Web Audio Synthetic Engine ---
+        let audioCtx;
+        
+        function initAudio() {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playTick(intensity) {
+            if(!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(150 + (intensity * 400), audioCtx.currentTime); 
+            osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.05);
+            
+            gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.05);
+        }
+
+        function playBoom() {
+            if(!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(20, audioCtx.currentTime + 1.5);
+            
+            gain.gain.setValueAtTime(1.0, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2.0);
+            
+            const bufferSize = audioCtx.sampleRate * 2;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+            const noiseFilter = audioCtx.createBiquadFilter();
+            noiseFilter.type = 'lowpass';
+            noiseFilter.frequency.value = 1000;
+            const noiseGain = audioCtx.createGain();
+            noiseGain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+            noiseGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+            
+            noise.connect(noiseFilter);
+            noiseFilter.connect(noiseGain);
+            noiseGain.connect(audioCtx.destination);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 2.0);
+            noise.start();
+        }
+
+        // --- Cinematic Sequence Driver ---
+        function executeCinematicReveal(payload) {
+            // Unmount standby elements
+            standbyScreen.classList.add('hidden');
+            scanBar.classList.add('hidden');
+            
+            const envelopeTrack = document.getElementById('envelope-track');
+            envelopeTrack.innerHTML = '';
+            
+            // Build 50 physical SVG envelopes
+            const totalEnvelopes = 50;
+            for(let i=0; i<totalEnvelopes; i++) {
+                const env = document.createElement('div');
+                env.className = 'w-32 h-32 shrink-0 text-amber-500 drop-shadow-[0_0_15px_rgba(245,158,11,0.5)]';
+                env.innerHTML = `<svg fill="currentColor" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zm16 2l-8 5-8-5h16zm0 12V8l-8 5-8-5v10h16z"/></svg>`;
+                envelopeTrack.appendChild(env);
+            }
+            
+            // Force reset track to starting bounds
+            envelopeTrack.style.transition = 'none';
+            envelopeTrack.style.transform = `translateX(0px)`;
+            
+            // Mount sequence elements
+            envelopeTrack.classList.remove('hidden');
+            header.style.opacity = '1';
+            roundLabel.innerText = payload.round;
+            
+            // Math for targeting envelope 43 (0-indexed 42)
+            // Width: 32 (8rem = 128px) + Gap: 16 (4rem = 64px) = 192px per index block
+            const itemWidth = 192;
+            const targetIndex = 42; 
+            const centerOffset = 128 / 2; // Offset center pivot of the envelope asset
+            
+            // The exact pixel destination to perfectly center the golden envelope
+            const targetPixel = -(targetIndex * itemWidth) - centerOffset;
+            
+            // Fire the sequence
+            setTimeout(() => {
+                // Apply a stunning 5-second cinematic physics curve
+                envelopeTrack.style.transition = 'transform 5s cubic-bezier(0.1, 0.9, 0.2, 1)';
+                envelopeTrack.style.transform = `translateX(${targetPixel}px)`;
+                
+                // Exponential auditory syncing tick engine over 5000ms
+                let detonated = false;
+                let currentTick = 0;
+                let maxTicks = 40; 
+                let baseDelay = 20; 
+                function spinTick() {
+                    if(currentTick >= maxTicks || detonated) return;
+                    playTick(currentTick / maxTicks);
+                    ambientLight.style.opacity = (currentTick % 2 === 0) ? '0.3' : '0.1';
+                    
+                    // Hardware-sync precision curve: sum(20 + 0.2*i^2) for i=0..39 = ~5066ms
+                    const delay = baseDelay + (Math.pow(currentTick, 2) * 0.2); 
+                    currentTick++;
+                    setTimeout(spinTick, delay);
+                }
+                spinTick();
+                
+                // --- DETONATION: Occurs exactly when 5s CSS transition finishes
+                setTimeout(() => {
+                    detonated = true; // Hard killswitch for audio tick interval
+                    
+                    // Destroy track
+                    envelopeTrack.classList.add('hidden');
+                    
+                    // Reveal Payload
+                    motionEl.classList.remove('hidden');
+                    motionEl.innerText = `"${payload.text}"`;
+                    motionEl.classList.add('final-state');
+                    ambientLight.style.opacity = '1';
+                    
+                    // Flash blinding overcharge
+                    flashOverlay.style.opacity = '1';
+                    setTimeout(() => {
+                        flashOverlay.style.transition = 'opacity 1.5s ease-out';
+                        flashOverlay.style.opacity = '0';
+                    }, 50);
+                    
+                    playBoom(); // Detonate Sub Bass Layer
+                    
+                    // Fire dual victory particles
+                    const duration = 3500;
+                    const end = Date.now() + duration;
+                    (function frame() {
+                        confetti({ particleCount: 6, angle: 60, spread: 55, origin: { x: 0, y: 0.9 }, colors: ['#f59e0b', '#fbbf24', '#ffffff', '#1e293b'] });
+                        confetti({ particleCount: 6, angle: 120, spread: 55, origin: { x: 1, y: 0.9 }, colors: ['#f59e0b', '#fbbf24', '#ffffff', '#1e293b'] });
+                        if (Date.now() < end) requestAnimationFrame(frame);
+                    }());
+                }, 5000); // Wait exactly 5s
+                
+            }, 1000); // Dramatic 1s pause before engaging kinetics
+        }
+
+        // --- Autonomous Polling Engine ---
+        async function checkRevealStatus() {
+            try {
+                const response = await fetch('/api/check_reveal');
+                const data = await response.json();
+                
+                // Case: Admin triggered a fresh reveal
+                if (data.motion_id && data.motion_id !== lastPlayedMotionId) {
+                    lastPlayedMotionId = data.motion_id; // Lock it so it doesn't loop
+                    clearInterval(POLLING_INTERVAL); // Stop checking while spinning!
+                    executeCinematicReveal(data);
+                    
+                    // Restart polling silently in the background after 20 seconds
+                    // in case the admin clears it or fires another one
+                    setTimeout(() => {
+                        POLLING_INTERVAL = setInterval(checkRevealStatus, 2000);
+                    }, 20000);
+                } 
+                // Case: Admin hit the "Clear State" panic button
+                else if (!data.motion_id && lastPlayedMotionId !== null) {
+                    // Soft reset the screen back to standby smoothly
+                    lastPlayedMotionId = null;
+                    header.style.opacity = '0';
+                    motionEl.classList.add('hidden');
+                    motionEl.classList.remove('final-state');
+                    ambientLight.style.opacity = '0';
+                    setTimeout(() => {
+                        standbyScreen.classList.remove('hidden');
+                        scanBar.classList.remove('hidden');
+                    }, 1000); // Wait for header to fade before bringing back standby
+                }
+            } catch (err) {
+                console.error("Signal lost", err);
+            }
+        }
+
+        // User must physically click the screen ONCE so Chrome allows the AudioContext to bind.
+        initScreen.addEventListener('click', () => {
+            initAudio();
+            initScreen.classList.add('hidden');
+            standbyScreen.classList.remove('hidden');
+            scanBar.classList.remove('hidden');
+            
+            // Engage listening array
+            POLLING_INTERVAL = setInterval(checkRevealStatus, 2000);
+            checkRevealStatus(); // Immediate first check
+        });
+
+    </script>
+</body>
+</html>

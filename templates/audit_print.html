@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Logs - Print Export</title>
+    <!-- Use basic CSS to ensure perfect printing -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #000;
+            background: #fff;
+            margin: 0;
+            padding: 20px;
+            font-size: 12px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 15px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            text-transform: uppercase;
+        }
+        .header p {
+            margin: 5px 0 0 0;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px 10px;
+            text-align: left;
+            vertical-align: top;
+            word-wrap: break-word;
+        }
+        th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .col-time { width: 15%; }
+        .col-admin { width: 15%; }
+        .col-action { width: 20%; font-weight: bold; }
+        .col-details { width: 50%; }
+
+        @media print {
+            body { padding: 0; }
+            @page { margin: 1cm; }
+        }
+    </style>
+</head>
+<body onload="window.print()">
+
+    <div class="header">
+        <h1>The Crown | Master Audit Log Export</h1>
+        <p>Exported on: <script>document.write(new Date().toLocaleString());</script></p>
+        <p>Notice: This document contains a permanent record of all destructive and constructive administrative actions.</p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th class="col-time">Time</th>
+                <th class="col-admin">Administrator</th>
+                <th class="col-action">Action Type</th>
+                <th class="col-details">Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if logs %}
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log.timestamp }}</td>
+                    <td>{{ log.admin_name }}</td>
+                    <td>{{ log.category }}</td>
+                    <td>{{ log.details }}</td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="4" style="text-align: center; padding: 20px;">No logs recorded yet.</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+</body>
+</html>

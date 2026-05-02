@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Crown | Admin Login</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,0.2) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,0) 0, transparent 50%);
+        }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+<body class="text-slate-200 min-h-screen flex flex-col justify-center items-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-900">
+
+    <div class="w-full max-w-md">
+        <div class="text-center mb-8 border-b border-amber-600/30 pb-6">
+            <svg class="mx-auto h-16 w-auto text-amber-500 mb-4 filter drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/>
+            </svg>
+            <h1 class="text-3xl font-extrabold text-white font-serif tracking-widest uppercase">Admin Login</h1>
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="mb-6 space-y-2">
+            {% for message in messages %}
+              <div class="p-4 text-sm text-red-200 rounded-lg bg-red-900/50 border border-red-500/50 glass" role="alert">
+                {{ message }}
+              </div>
+            {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <div class="glass shadow-2xl rounded-2xl p-8 transform transition-all duration-300">
+            <form action="/login" method="post" class="space-y-6">
+                <div>
+                    <label for="username" class="block text-sm font-medium text-slate-300">Admin Username</label>
+                    <div class="mt-1">
+                        <input id="username" name="username" type="text" required placeholder="e.g. master" class="appearance-none block w-full px-3 py-2 border border-slate-600 rounded-md shadow-sm placeholder-slate-500 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm bg-slate-800 text-slate-100 mb-4">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="password" class="block text-sm font-medium text-slate-300">Admin Password</label>
+                    <div class="mt-1">
+                        <input id="password" name="password" type="password" required class="appearance-none block w-full px-3 py-2 border border-slate-600 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm bg-slate-800 text-slate-100">
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold text-slate-900 bg-amber-500 hover:bg-amber-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 uppercase tracking-widest transition-all">
+                        Sign In
+                    </button>
+                </div>
+                
+                <div class="mt-4 text-center">
+                    <a href="/" class="text-xs text-amber-500 hover:text-amber-400">← Back to Dashboard</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

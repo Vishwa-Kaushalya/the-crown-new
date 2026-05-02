@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motion Reveal | {{ motion.round }}</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;900&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body { background-color: #020617; overflow: hidden; font-family: 'Inter', sans-serif; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        
+        /* Central glowing aura that pulses with the audio tick */
+        .pulse-bg {
+            position: absolute; inset: 0;
+            background: radial-gradient(circle at center, rgba(245, 158, 11, 0.15) 0%, transparent 60%);
+            opacity: 0; transition: opacity 0.1s;
+            z-index: 0; pointer-events: none;
+        }
+
+        #motion-text {
+            text-shadow: 0 0 20px rgba(0,0,0,0.8);
+            filter: blur(0px);
+            transition: filter 0.05s, transform 0.05s, color 0.5s;
+            z-index: 10; position: relative;
+        }
+        
+        /* The final state when the real motion hits */
+        .final-state {
+            color: #ffffff !important;
+            text-shadow: 0 0 40px rgba(245, 158, 11, 0.6), 0 0 80px rgba(245, 158, 11, 0.4) !important;
+            transform: scale(1.05);
+        }
+
+        /* The rapid motion blur CSS applied during the spin */
+        .blur-state {
+            filter: blur(3px) brightness(1.5);
+            transform: scale(0.98);
+        }
+        
+        /* The explosive white flash on completion */
+        #overlay-flash {
+            position: fixed; inset: 0; background: white; z-index: 50; opacity: 0; pointer-events: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center relative select-none">
+
+    <!-- Ambient Lighting and Flash Effects -->
+    <div class="pulse-bg" id="ambient-light"></div>
+    <div id="overlay-flash"></div>
+
+    <div class="absolute top-10 w-full text-center z-10 opacity-0 transition-opacity duration-1000" id="header">
+        <h2 class="text-amber-500 text-2xl md:text-4xl font-black uppercase tracking-[0.5em] drop-shadow-[0_0_15px_rgba(245,158,11,0.5)]">Official Motion</h2>
+        <div class="text-slate-400 text-lg md:text-xl font-bold uppercase tracking-widest mt-4">{{ motion.round }}</div>
+    </div>
+
+    <!-- START PROMPT -->
+    <button id="start-btn" class="z-50 px-10 py-5 bg-amber-500 text-slate-900 font-black uppercase tracking-widest text-lg rounded-[2rem] hover:bg-amber-400 hover:scale-105 transition-all shadow-[0_0_40px_rgba(245,158,11,0.6)] cursor-pointer ring-4 ring-amber-500/30">
+        Initiate Reveal Sequence
+    </button>
+
+    <div class="max-w-6xl w-full px-8 z-10 text-center flex items-center justify-center flex-1">
+        <p id="motion-text" class="text-4xl md:text-6xl lg:text-7xl font-serif font-black text-slate-600 leading-tight italic hidden">
+            <!-- Text dynamically injected here -->
+        </p>
+    </div>
+
+    <script>
+        const realMotion = {{ motion.text | tojson }};
+        const decoys = {{ decoys | tojson }};
+        
+        const motionEl = document.getElementById('motion-text');
+        const startBtn = document.getElementById('start-btn');
+        const ambientLight = document.getElementById('ambient-light');
+        const header = document.getElementById('header');
+        const flashOverlay = document.getElementById('overlay-flash');
+        
+        // --- Web Audio Synthetic Engine (No external files needed) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Rapid ticking effect
+        function playTick(intensity) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(150 + (intensity * 400), audioCtx.currentTime); // Pitch increases over time
+            osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.05);
+            
+            gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.05);
+        }
+
+        // Final explosive impact effect
+        function playBoom() {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(20, audioCtx.currentTime + 1.5);
+            
+            gain.gain.setValueAtTime(1.0, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2.0);
+            
+            // Sub White noise component for crunch
+            const bufferSize = audioCtx.sampleRate * 2;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+            const noiseFilter = audioCtx.createBiquadFilter();
+            noiseFilter.type = 'lowpass';
+            noiseFilter.frequency.value = 1000;
+            const noiseGain = audioCtx.createGain();
+            noiseGain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+            noiseGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+            
+            noise.connect(noiseFilter);
+            noiseFilter.connect(noiseGain);
+            noiseGain.connect(audioCtx.destination);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 2.0);
+            noise.start();
+        }
+
+        // --- Core Animation Logic ---
+        startBtn.addEventListener('click', () => {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            startBtn.classList.add('hidden');
+            motionEl.classList.remove('hidden');
+            header.style.opacity = '1';
+            
+            document.body.style.cursor = 'none'; // Hide cursor during broadcast
+            
+            let currentTick = 0;
+            // 45 distinct flips before resolving
+            let maxTicks = 45;
+            let baseDelay = 30; // base millisecond delay
+            
+            function spin() {
+                if (currentTick >= maxTicks) {
+                    // -- RESOLUTION --
+                    motionEl.classList.remove('blur-state');
+                    motionEl.innerText = `"${realMotion}"`;
+                    motionEl.classList.add('final-state');
+                    ambientLight.style.opacity = '1';
+                    
+                    // Trigger visual whiteout flash
+                    flashOverlay.style.opacity = '1';
+                    setTimeout(() => {
+                        flashOverlay.style.transition = 'opacity 1.5s ease-out';
+                        flashOverlay.style.opacity = '0';
+                    }, 50);
+                    
+                    playBoom(); // Audio Impact
+                    
+                    // Fire Dual Confetti Cannons
+                    const duration = 3500;
+                    const end = Date.now() + duration;
+                    (function frame() {
+                        confetti({
+                            particleCount: 6,
+                            angle: 60,
+                            spread: 55,
+                            origin: { x: 0, y: 0.9 },
+                            colors: ['#f59e0b', '#fbbf24', '#ffffff', '#1e293b']
+                        });
+                        confetti({
+                            particleCount: 6,
+                            angle: 120,
+                            spread: 55,
+                            origin: { x: 1, y: 0.9 },
+                            colors: ['#f59e0b', '#fbbf24', '#ffffff', '#1e293b']
+                        });
+                        if (Date.now() < end) requestAnimationFrame(frame);
+                    }());
+                    return;
+                }
+                
+                // -- RAPID FIRE SPIN --
+                // Randomly select a decoy text
+                const decoyText = decoys[Math.floor(Math.random() * decoys.length)];
+                motionEl.innerText = decoyText;
+                
+                // Flash blur filter every other tick
+                if(currentTick % 2 === 0) {
+                    motionEl.classList.add('blur-state');
+                    ambientLight.style.opacity = '0.3';
+                } else {
+                    motionEl.classList.remove('blur-state');
+                    ambientLight.style.opacity = '0.1';
+                }
+                
+                // Sound logic (tension increases with progress)
+                const progress = currentTick / maxTicks;
+                playTick(progress);
+                
+                // Exponential decay for massive suspense at the end
+                // Power curve meaning the last 5 ticks drag out forever
+                const delay = baseDelay + Math.pow(currentTick, 1.8);
+                
+                currentTick++;
+                setTimeout(spin, delay);
+            }
+            
+            // Dramatic 1-second pause before the wheel actually starts ripping
+            setTimeout(spin, 1000); 
+        });
+    </script>
+</body>
+</html>

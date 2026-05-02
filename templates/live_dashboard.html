@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Crown | LIVE Venue Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #020617; overflow: hidden; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .glass { background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(20px); border: 2px solid rgba(255, 255, 255, 0.05); }
+        .glow-text { text-shadow: 0 0 10px rgba(245, 158, 11, 0.3); }
+        .rank-gold { color: #f59e0b; }
+        .rank-silver { color: #94a3b8; }
+        .rank-bronze { color: #b45309; }
+
+        .kiosk-screen {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1s ease-in-out;
+            visibility: hidden;
+        }
+        .kiosk-screen.active {
+            opacity: 1;
+            pointer-events: auto;
+            visibility: visible;
+        }
+
+        .scroller-container {
+            height: calc(100vh - 250px);
+            overflow-y: hidden;
+            position: relative;
+        }
+        .scroller-container::-webkit-scrollbar {
+            display: none;
+        }
+        .scroller-content {
+            width: 100%;
+        }
+        
+    </style>
+</head>
+<body class="text-white min-h-screen flex flex-col p-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8 border-b border-amber-500/20 pb-6 relative z-50">
+        <a href="/" class="flex items-center gap-4 hover:opacity-80 transition-opacity">
+            <div class="bg-amber-500 p-2 rounded-lg">
+                <svg class="h-10 w-10 text-slate-900" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/>
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-4xl font-black font-serif uppercase tracking-widest leading-none glow-text">The Crown</h1>
+                <p class="text-amber-500 font-bold uppercase tracking-[0.3em] text-xs mt-1">Official Live Kiosk</p>
+            </div>
+        </a>
+        <div class="flex items-center gap-6">
+            <div class="text-right">
+                <div id="currentTime" class="text-3xl font-black tabular-nums">00:00:00</div>
+                <div class="text-slate-500 text-xs font-bold uppercase tracking-widest">Venue Local Time</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="flex-1 w-full px-4 xl:px-12 mx-auto relative mt-4">
+        
+        <script>
+            // Data logic flags passed from Python
+            const IS_OUTROUNDS = {{ 'true' if is_outrounds else 'false' }};
+        </script>
+
+        <!-- SCREEN 1: LEADERBOARD -->
+        <div id="screen-leaderboard" class="kiosk-screen active">
+            <h2 class="text-2xl font-bold uppercase tracking-[0.2em] text-slate-400 mb-6 flex items-center gap-3">
+                <span class="w-1.5 h-6 bg-amber-500 rounded-full"></span> 
+                {% if is_outrounds %}Outrounds Top 16 Leaderboard{% else %}Preliminary Leaderboard{% endif %}
+            </h2>
+            <div class="glass flex-1 rounded-3xl pt-0 pb-8 px-4 relative scroller-container overflow-hidden" id="leaderboard-container">
+                <div class="scroller-content" id="leaderboard-content">
+                    
+                    {% set candidates = all_candidates[:16] if is_outrounds else all_candidates %}
+                    
+                    {% if is_outrounds %}
+                        <!-- OUTROUNDS DATA TABLE (Matches leaderboard_outrounds.html exactly) -->
+                        <table class="min-w-full divide-y divide-slate-700/50">
+                            <thead class="bg-slate-950 shadow-md">
+                                <tr>
+                                    <th scope="col" class="sticky top-0 z-20 bg-slate-950 px-5 py-4 text-left text-xs font-bold text-amber-500 uppercase tracking-wider w-16 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.5)]">Rank</th>
+                                    <th scope="col" class="sticky top-0 z-20 bg-slate-950 px-5 py-4 text-left text-xs font-bold text-amber-500 uppercase tracking-wider w-64 min-w-[16rem] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.5)]">Candidate Name</th>
+                                    <th scope="col" class="sticky top-0 z-20 bg-slate-950 px-3 py-4 text-center text-xs font-bold text-slate-400 uppercase tracking-wider shadow-[0_4px_6px_-1px_rgba(0,0,0,0.5)]">Octofinals</th>
+                                    <th scope="col" class="sticky top-0 z-20 bg-slate-950 px-3 py-4 text-center text-xs font-bold text-slate-400 uppercase tracking-wider shadow-[0_4px_6px_-1px_rgba(0,0,0,0.5)]">Quarterfinals</th>
+                                    <th scope="col" class="sticky top-0 z-20 bg-slate-950 px-3 py-4 text-center text-xs font-bold text-slate-400 uppercase tracking-wider shadow-[0_4px_6px_-1px_rgba(0,0,0,0.5)]">Semifinals</th>
+                                    <th scope="col" class="sticky top-0 z-20 bg-slate-950 px-3 py-4 text-center text-xs font-bold text-slate-400 uppercase tracking-wider shadow-[0_4px_6px_-1px_rgba(0,0,0,0.5)]">Finals</th>
+                                    <th scope="col" class="sticky top-0 z-20 bg-slate-950 px-5 py-4 text-center text-xs font-bold text-amber-400 uppercase tracking-wider shadow-[0_4px_6px_-1px_rgba(0,0,0,0.5)]">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-700/30 bg-transparent">
+                                {% for row in candidates %}
+                                <tr class="hover:bg-slate-700/40 transition-colors duration-200 group">
+                                    <td class="px-5 py-4 whitespace-nowrap text-sm font-bold text-slate-400">#{{ loop.index }}</td>
+                                    <td class="px-5 py-4 whitespace-nowrap text-sm font-bold text-white shadow-[2px_0px_5px_0px_rgba(0,0,0,0.2)]">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-full overflow-hidden bg-slate-800 flex-shrink-0 flex items-center justify-center border border-slate-700 text-amber-500 font-black text-sm shadow-[0_0_10px_rgba(245,158,11,0.2)]">
+                                                {% if row.get('Avatar') %}
+                                                    <img src="{{ url_for('static', filename='avatars/' ~ row.get('Avatar')) }}?t={{ range(1, 100000) | random }}" class="w-full h-full object-cover">
+                                                {% else %}
+                                                    {{ row.get('Candidate Name')[0] }}{{ row.get('Candidate Name').split(' ')[1][0] if ' ' in row.get('Candidate Name') else '' }}
+                                                {% endif %}
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <span class="tracking-wide">{{ row.get('Candidate Name', 'Unknown') }}</span>
+                                                {% if row.get('Alias') %}
+                                                <span class="text-xs text-amber-600/80 mt-0.5 font-mono">"{{ row.get('Alias') }}"</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- Outrounds Data -->
+                                    <td class="px-3 py-4 text-center whitespace-nowrap text-sm text-slate-300">
+                                        {% if row.get('Octofinals', '-') != '-' %}
+                                            <span class="inline-block bg-slate-800 border border-slate-600 px-3 py-1 rounded text-slate-200 shadow-inner font-mono font-bold text-xs">{{ "%.1f"|format(row.get('Octofinals')|float) }}</span>
+                                        {% else %}-{% endif %}
+                                    </td>
+                                    <td class="px-3 py-4 text-center whitespace-nowrap text-sm text-slate-300">
+                                        {% if row.get('Quarterfinals', '-') != '-' %}
+                                            <span class="inline-block bg-slate-800 border border-slate-600 px-3 py-1 rounded text-slate-200 shadow-inner font-mono font-bold text-xs">{{ "%.1f"|format(row.get('Quarterfinals')|float) }}</span>
+                                        {% else %}-{% endif %}
+                                    </td>
+                                    <td class="px-3 py-4 text-center whitespace-nowrap text-sm text-slate-300">
+                                        {% if row.get('Semifinals', '-') != '-' %}
+                                            <span class="inline-block bg-slate-800 border border-slate-600 px-3 py-1 rounded text-slate-200 shadow-inner font-mono font-bold text-xs">{{ "%.1f"|format(row.get('Semifinals')|float) }}</span>
+                                        {% else %}-{% endif %}
+                                    </td>
+                                    <td class="px-3 py-4 text-center whitespace-nowrap text-sm text-slate-300">
+                                        {% if row.get('Finals', '-') != '-' %}
+                                            <span class="inline-block bg-amber-900/20 border border-amber-600/50 px-3 py-1 rounded text-amber-500 shadow-inner font-mono font-bold text-xs">{{ "%.1f"|format(row.get('Finals')|float) }}</span>
+                                        {% else %}-{% endif %}
+                                    </td>
+                                    
+                                    <!-- Badges -->
+                                    <td class="px-5 py-4 text-center whitespace-nowrap text-xs font-bold">
+                                        {% if row.get('Eliminated_At') == 'Octofinals' %}
+                                            <span class="px-3 py-1 inline-flex leading-5 rounded-full bg-slate-800 text-slate-500 border border-slate-700">Octafinalist</span>
+                                        {% elif row.get('Eliminated_At') == 'Quarterfinals' %}
+                                            <span class="px-3 py-1 inline-flex leading-5 rounded-full bg-purple-900/40 text-purple-400 border border-purple-600/50">Quarterfinalist</span>
+                                        {% elif row.get('Eliminated_At') == 'Semifinals' %}
+                                            <span class="px-3 py-1 inline-flex leading-5 rounded-full bg-blue-900/40 text-blue-400 border border-blue-600/50">Semifinalist</span>
+                                        {% elif row.get('Eliminated_At') == 'Finals' %}
+                                            <span class="px-3 py-1 inline-flex leading-5 rounded-full bg-red-900/40 text-red-500 border border-red-700/50 flex flex-row items-center justify-center gap-1"><svg class="w-3 h-3 text-red-500" viewBox="0 0 24 24" fill="currentColor"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/></svg> Finalist</span>
+                                        {% else %}
+                                            <span class="px-3 py-1 inline-flex leading-5 rounded-full bg-amber-900/40 text-amber-400 border border-amber-600/50">In Running</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <!-- PRELIMINARY DATA TABLE (Matches index.html exactly) -->
+                        <table class="min-w-full divide-y divide-slate-700/50">
+                            <thead class="bg-slate-950 shadow-md">
+                                <tr>
+                                    <th scope="col" class="sticky top-0 z-20 bg-slate-950 px-5 py-4 text-left text-xs font-bold text-amber-500 uppercase tracking-wider w-16 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.5)]">Rank</th>
+                                    <th scope="col" class="sticky top-0 z-20 bg-slate-950 px-5 py-4 text-left text-xs font-bold text-amber-500 uppercase tracking-wider w-64 min-w-[16rem] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.5)]">Candidate Name</th>
+                                    <th scope="col" class="sticky top-0 z-20 bg-slate-950 px-3 py-4 text-center text-xs font-bold text-slate-400 uppercase tracking-wider shadow-[0_4px_6px_-1px_rgba(0,0,0,0.5)]">R1</th>
+                                    <th scope="col" class="sticky top-0 z-20 bg-slate-950 px-3 py-4 text-center text-xs font-bold text-slate-400 uppercase tracking-wider shadow-[0_4px_6px_-1px_rgba(0,0,0,0.5)]">R2</th>
+                                    <th scope="col" class="sticky top-0 z-20 bg-slate-950 px-3 py-4 text-center text-xs font-bold text-slate-400 uppercase tracking-wider shadow-[0_4px_6px_-1px_rgba(0,0,0,0.5)]">R3</th>
+                                    <th scope="col" class="sticky top-0 z-20 bg-slate-950 px-3 py-4 text-center text-xs font-bold text-slate-400 uppercase tracking-wider shadow-[0_4px_6px_-1px_rgba(0,0,0,0.5)]">R4</th>
+                                    <th scope="col" class="sticky top-0 z-20 bg-slate-950 px-3 py-4 text-center text-xs font-bold text-slate-400 uppercase tracking-wider shadow-[0_4px_6px_-1px_rgba(0,0,0,0.5)]">R5</th>
+                                    <th scope="col" class="sticky top-0 z-20 bg-slate-950 px-3 py-4 text-center text-xs font-bold text-slate-400 uppercase tracking-wider shadow-[0_4px_6px_-1px_rgba(0,0,0,0.5)]">R6</th>
+                                    
+                                    <th scope="col" class="sticky top-0 z-20 bg-slate-950 px-4 py-4 text-center text-xs font-bold text-amber-400 uppercase tracking-wider shadow-[0_4px_6px_-1px_rgba(0,0,0,0.5)]">Tot. Marks</th>
+                                    <th scope="col" class="sticky top-0 z-20 bg-slate-950 px-4 py-4 text-center text-xs font-bold text-amber-500 uppercase tracking-wider shadow-[0_4px_6px_-1px_rgba(0,0,0,0.5)] bg-slate-800/40">Wins</th>
+                                </tr>
+                            </thead>
+                                <tbody class="divide-y divide-slate-700/30 bg-transparent">
+                                    {% for row in candidates %}
+                                    <tr class="hover:bg-slate-700/40 transition-colors duration-200">
+                                        <td class="px-5 py-4 whitespace-nowrap text-sm font-bold text-slate-400">#{{ loop.index }}</td>
+                                        <td class="px-5 py-4 whitespace-nowrap text-sm font-bold text-white shadow-[2px_0px_5px_0px_rgba(0,0,0,0.2)]">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-full overflow-hidden bg-slate-800 flex-shrink-0 flex items-center justify-center border border-slate-700 text-amber-500 font-black text-sm shadow-[0_0_10px_rgba(245,158,11,0.2)]">
+                                                    {% if row.get('Avatar') %}
+                                                        <img src="{{ url_for('static', filename='avatars/' ~ row.get('Avatar')) }}?t={{ range(1, 100000) | random }}" class="w-full h-full object-cover">
+                                                    {% else %}
+                                                        {{ row.get('Candidate Name')[0] }}{{ row.get('Candidate Name').split(' ')[1][0] if ' ' in row.get('Candidate Name') else '' }}
+                                                    {% endif %}
+                                                </div>
+                                                <div class="flex flex-col">
+                                                    <span class="tracking-wide">{{ row.get('Candidate Name', 'Unknown') }}</span>
+                                                    {% if row.get('Alias') %}
+                                                    <span class="text-xs text-amber-600/80 mt-0.5 font-mono">"{{ row.get('Alias') }}"</span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-3 py-4 text-center whitespace-nowrap text-sm text-slate-300">{{ row.get('R1', '-') }}</td>
+                                        <td class="px-3 py-4 text-center whitespace-nowrap text-sm text-slate-300">{{ row.get('R2', '-') }}</td>
+                                        <td class="px-3 py-4 text-center whitespace-nowrap text-sm text-slate-300">{{ row.get('R3', '-') }}</td>
+                                        <td class="px-3 py-4 text-center whitespace-nowrap text-sm text-slate-300">{{ row.get('R4', '-') }}</td>
+                                        <td class="px-3 py-4 text-center whitespace-nowrap text-sm text-slate-300">{{ row.get('R5', '-') }}</td>
+                                        <td class="px-3 py-4 text-center whitespace-nowrap text-sm text-slate-300">{{ row.get('R6', '-') }}</td>
+                                        <td class="px-4 py-4 text-center whitespace-nowrap text-sm font-bold text-amber-500">{{ row.get('Total Marks', '0.00') }}</td>
+                                        <td class="px-4 py-4 text-center whitespace-nowrap text-lg font-black bg-slate-800/40 text-white">{{ row.get('Wins', '0') }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                    {% endif %}
+                    
+                    {% if not candidates %}
+                    <div class="p-12 text-center text-slate-500 text-xl font-bold uppercase tracking-widest italic opacity-50">
+                        No Data Available
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 2: PENDING MATCHES -->
+        <div id="screen-matches" class="kiosk-screen">
+            <h2 class="text-2xl font-bold uppercase tracking-[0.2em] text-slate-400 mb-6 flex items-center gap-3">
+                <span class="w-1.5 h-6 bg-amber-500 rounded-full"></span> 
+                {% if is_outrounds %}Active Outround Matches{% else %}Active Preliminary Matches{% endif %}
+            </h2>
+            
+            <div class="glass flex-1 rounded-3xl p-8 relative scroller-container overflow-hidden" id="matches-container">
+                <div class="scroller-content" id="matches-content">
+                    {% if active_matches %}
+                    <div class="grid grid-cols-1 gap-8 pb-8">
+                        {% for m in active_matches %}
+                        <div class="relative p-8 rounded-3xl bg-slate-900 shadow-[0_10px_30px_rgba(0,0,0,0.5)] border-l-[6px] border-amber-500 flex flex-col h-full transform transition-all">
+                            <div class="absolute top-6 right-6 text-xs font-black uppercase tracking-widest text-amber-400 bg-amber-900/30 border border-amber-500/30 px-4 py-1.5 rounded-full shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+                                ROOM: {{ m.get('room', 'TBD') }}
+                            </div>
+                            <div class="text-amber-500 text-sm font-black uppercase tracking-widest mb-8">{{ m.round }}</div>
+                            <div class="flex items-center justify-between gap-6 flex-1">
+                                
+                                <!-- Team 1 -->
+                                <div class="flex-1 text-center flex flex-col items-center justify-center">
+                                    <div class="flex flex-col gap-2">
+                                        {% if m.is_outround %}
+                                            <div class="text-3xl font-black text-white px-2">{{ m.team1_leader }}</div>
+                                        {% else %}
+                                            {% for member in m.team1 %}
+                                                <div class="text-2xl font-black text-white px-2 leading-tight">{{ member }}</div>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
+                                    <div class="text-[10px] text-slate-500 font-bold uppercase mt-4 tracking-widest">Proposal</div>
+                                </div>
+
+                                <div class="w-16 h-16 flex items-center justify-center rounded-full bg-slate-800 border-4 border-amber-500/20 shrink-0 shadow-inner">
+                                    <span class="text-lg font-black italic text-amber-500 drop-shadow-[0_0_5px_rgba(245,158,11,0.5)]">VS</span>
+                                </div>
+
+                                <!-- Team 2 -->
+                                <div class="flex-1 text-center flex flex-col items-center justify-center">
+                                    <div class="flex flex-col gap-2">
+                                        {% if m.is_outround %}
+                                            <div class="text-3xl font-black text-white px-2">{{ m.team2_leader }}</div>
+                                        {% else %}
+                                            {% for member in m.team2 %}
+                                                <div class="text-2xl font-black text-white px-2 leading-tight">{{ member }}</div>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
+                                    <div class="text-[10px] text-slate-500 font-bold uppercase mt-4 tracking-widest">Opposition</div>
+                                </div>
+
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="h-full flex flex-col items-center justify-center opacity-30 mt-20">
+                        <svg class="w-32 h-32 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                        <div class="text-3xl font-bold italic tracking-wider">No Active Matchups...</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer Status -->
+    <div class="fixed bottom-0 left-0 w-full p-8 pointer-events-none z-50">
+        <div class="flex justify-between items-center text-slate-500 text-xs font-bold uppercase tracking-[0.4em]">
+            <div>The Crown Live Event Stream</div>
+            <div class="flex items-center gap-3 bg-black/50 px-4 py-2 rounded-full border border-slate-800 backdrop-blur-md">
+                <span class="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]"></span>
+                <span id="kioskStatus">System Live</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Clock
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('currentTime').innerText = now.toLocaleTimeString('en-GB', { hour12: false });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Kiosk State Machine Controller
+        const S_LEADERBOARD = 0;
+        const S_MATCHES = 1;
+        let currentState = S_LEADERBOARD;
+        
+        const screenLeaderboard = document.getElementById('screen-leaderboard');
+        const screenMatches = document.getElementById('screen-matches');
+        
+        const leaderboardContainer = document.getElementById('leaderboard-container');
+        const leaderboardContent = document.getElementById('leaderboard-content');
+        
+        const matchesContainer = document.getElementById('matches-container');
+        const matchesContent = document.getElementById('matches-content');
+
+        // Configuration
+        const MATCHES_VIEW_DURATION = 10000; // 10 seconds on matches screen
+        const OUTROUNDS_LEADERBOARD_DURATION = 10000; // 10 seconds if outrounds top 16
+        const POST_SCROLL_WAIT = 2000; // 2 seconds wait at bottom of scroll
+        const SCROLL_SPEED = 1.0; // pixels per frame (approx 60px/sec)
+
+        // Switch to a specific screen
+        function switchScreen(state) {
+            screenLeaderboard.classList.remove('active');
+            screenMatches.classList.remove('active');
+
+            if (state === S_LEADERBOARD) {
+                screenLeaderboard.classList.add('active');
+                startLeaderboardRoutine();
+            } else if (state === S_MATCHES) {
+                screenMatches.classList.add('active');
+                startMatchesRoutine();
+            }
+        }
+
+        // --- Leaderboard Routine ---
+        function startLeaderboardRoutine() {
+            // Reset scroll position instantly
+            leaderboardContainer.scrollTop = 0;
+
+            // Give it 1 second grace period to fade in before scrolling starts
+            setTimeout(() => {
+                // Unified Scroll Routine for both Prelims and Outrounds
+                let currentScroll = 0;
+                
+                function stepScroll() {
+                    const maxScroll = leaderboardContent.scrollHeight - leaderboardContainer.clientHeight;
+                    
+                    // If content fits completely on screen without overflowing, hold on screen then transition
+                    if (maxScroll <= 0) {
+                        setTimeout(() => {
+                            switchScreen(S_MATCHES);
+                        }, POST_SCROLL_WAIT);
+                        return;
+                    }
+
+                    currentScroll += SCROLL_SPEED;
+                    if (currentScroll >= maxScroll) {
+                        currentScroll = maxScroll; // Clamp to bottom
+                        leaderboardContainer.scrollTop = currentScroll;
+                        // Wait at bottom
+                        setTimeout(() => {
+                            switchScreen(S_MATCHES);
+                        }, POST_SCROLL_WAIT); // Universal 2 second wait when scroll completes
+                        return; // end animation
+                    }
+                    
+                    leaderboardContainer.scrollTop = currentScroll;
+                    requestAnimationFrame(stepScroll);
+                }
+                
+                // Starts the animation
+                requestAnimationFrame(stepScroll);
+            }, 1000);
+        }
+
+        // --- Matches Routine ---
+        function startMatchesRoutine() {
+            // Reset scroll position
+            matchesContainer.scrollTop = 0;
+            
+            setTimeout(() => {
+                let currentScroll = 0;
+                
+                function stepScroll() {
+                    const maxScroll = matchesContent.scrollHeight - matchesContainer.clientHeight;
+                    
+                    // If matches fit perfectly, hold on them then execute a full hard-refresh of the kiosk dataset
+                    if (maxScroll <= 0) {
+                        setTimeout(() => {
+                            window.location.reload(); 
+                        }, POST_SCROLL_WAIT);
+                        return;
+                    }
+
+                    // Otherwise, smoothly scroll down the matchup blocks
+                    currentScroll += SCROLL_SPEED;
+                    if (currentScroll >= maxScroll) {
+                        currentScroll = maxScroll; // Clamp to bottom
+                        matchesContainer.scrollTop = currentScroll;
+                        
+                        // Wait at bottom then hard-refresh dataset!
+                        setTimeout(() => {
+                            window.location.reload(); 
+                        }, POST_SCROLL_WAIT);
+                        return; // end animation
+                    }
+                    
+                    matchesContainer.scrollTop = currentScroll;
+                    requestAnimationFrame(stepScroll);
+                }
+                
+                requestAnimationFrame(stepScroll);
+            }, 1000);
+        }
+
+        // Kickoff the loop!
+        switchScreen(S_LEADERBOARD);
+
+    </script>
+</body>
+</html>

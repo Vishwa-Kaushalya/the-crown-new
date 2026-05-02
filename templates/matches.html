@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Crown | Matches</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; 
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,0.2) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,0) 0, transparent 50%);
+        }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999; opacity: 0; pointer-events: none; transition: all 0.3s ease;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-content {
+            transform: scale(0.9); transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .modal-overlay.active .modal-content { transform: scale(1); }
+    </style>
+</head>
+<body class="text-slate-200 min-h-screen flex flex-col pt-0 bg-slate-900">
+
+    <!-- Hamburger Sidebar -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 w-64 glass z-[100] transform -translate-x-full transition-transform duration-300 shadow-2xl border-r border-slate-700/50 flex flex-col">
+        <div class="p-6 flex justify-between items-center border-b border-slate-700/50 bg-slate-900/50">
+            <span class="text-xl font-bold font-serif text-amber-500 uppercase tracking-widest">Menu</span>
+            <button onclick="toggleSidebar()" class="text-slate-400 hover:text-white transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        <div class="p-6 flex flex-col gap-6 mt-4">
+            {% if is_admin %}
+            <a href="/admin/registration" class="text-blue-400 hover:text-blue-300 text-sm font-bold uppercase tracking-wider transition-colors flex items-center gap-3">
+                📋 Registration
+            </a>
+            {% endif %}
+            <a href="/timer" class="text-slate-300 hover:text-amber-500 text-sm font-bold uppercase tracking-wider transition-colors flex items-center gap-3">
+                ⏱️ Official Timer
+            </a>
+            <a href="/hall_of_fame" class="text-slate-300 hover:text-amber-500 text-sm font-bold uppercase tracking-wider transition-colors flex items-center gap-3">
+                🏛️ Hall of Fame
+            </a>
+            <a href="/reveal_kiosk" target="_blank" class="text-slate-300 hover:text-amber-500 text-sm font-bold uppercase tracking-wider transition-colors flex items-center gap-3">
+                📽️ Motion Reveal
+            </a>
+        </div>
+    </div>
+    
+    <!-- Sidebar Overlay -->
+    <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-[90] hidden fade-in backdrop-blur-sm"></div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+    </script>
+
+
+    <!-- Top Navigation Bar -->
+    <nav class="bg-slate-900/95 border-b border-amber-600/30 sticky top-0 z-50 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">                <div class="flex items-center space-x-6">
+                    <button onclick="toggleSidebar()" class="text-slate-300 hover:text-white transition-colors ml-2 mr-2 group">
+                        <svg class="w-6 h-6 group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                    <div class="flex-shrink-0 flex items-center gap-2 pr-4 border-r border-slate-700/50">
+                        <svg class="h-8 w-auto text-amber-500 filter drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/>
+                        </svg>
+                        <span class="text-xl font-bold font-serif text-white uppercase tracking-widest">The Crown</span>
+                    </div>
+                    <a href="/" class="text-slate-300 hover:text-white hover:bg-slate-800 px-3 py-2 rounded-md text-sm font-bold uppercase tracking-wider transition-colors">🏆 Leaderboard</a>
+                    <a href="/matches" class="text-amber-500 hover:text-amber-400 px-3 py-2 rounded-md text-sm font-bold uppercase tracking-wider relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-amber-500">⚔️ Matches</a>
+                    <a href="/live" target="_blank" class="text-slate-300 hover:text-amber-500 hover:bg-slate-800 px-3 py-2 rounded-md text-sm font-bold uppercase tracking-wider transition-colors">📡 Live</a>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    {% if is_admin %}
+                        <span class="text-xs font-bold text-amber-500 uppercase tracking-wider py-2">Admin Mode</span>
+                        <a href="/admin/motions" class="text-[10px] font-bold text-amber-400 hover:text-amber-300 bg-amber-900/30 px-3 py-1 rounded border border-amber-700/50 transition-colors uppercase tracking-widest leading-tight text-center mt-1 flex items-center gap-1">🔐 Vault</a>
+                        {% if is_master %}
+                            <a href="/admin/users" class="text-xs font-bold text-indigo-400 hover:text-indigo-300 bg-indigo-900/30 px-3 py-1 rounded border border-indigo-700/50 transition-colors uppercase tracking-widest leading-none flex items-center">Users</a>
+                            <a href="/admin/audit" class="text-xs font-bold text-red-400 hover:text-red-300 bg-red-900/30 px-3 py-1 rounded border border-red-700/50 transition-colors uppercase tracking-widest leading-none flex items-center">Logs</a>
+                        {% endif %}
+                        <a href="/logout" class="text-xs font-bold text-slate-300 hover:text-amber-500 bg-slate-800/50 px-3 py-1 rounded border border-slate-700 transition-colors uppercase tracking-widest leading-none flex items-center">Logout</a>
+                    {% else %}
+                        <a href="/login" class="text-xs font-bold text-slate-400 hover:text-amber-500 transition-colors uppercase tracking-widest flex items-center gap-1">Admin Login</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <!-- Messages -->
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="mb-6 w-full space-y-2">
+            {% for message in messages %}
+              <div class="p-4 text-sm text-green-200 rounded-lg bg-green-900/50 border border-green-500/50 glass font-bold text-center">
+                {{ message }}
+              </div>
+            {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-amber-500 font-serif uppercase tracking-widest mb-3">Tournament Matchups</h1>
+            <p class="text-slate-400 font-medium tracking-wide">Review the daily team pairings and schedules.</p>
+        </div>
+        
+        <div class="flex justify-center space-x-4 mb-10 w-full">
+            <a href="/matches" class="px-6 py-2 bg-amber-600 text-slate-900 font-bold uppercase tracking-widest rounded shadow-lg text-sm">Preliminary Matches</a>
+            <a href="/matches/outrounds" class="px-6 py-2 bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200 font-bold uppercase tracking-widest rounded border border-slate-700 transition-colors text-sm">Knockout Lotteries</a>
+        </div>
+
+        {% if is_admin %}
+        <div class="w-full mb-10 text-left">
+            <!-- Matchmaker Card -->
+            <div class="glass shadow-xl rounded-xl p-6 border-t-2 border-amber-500">
+                <h3 class="text-xl font-serif text-amber-500 font-bold mb-4 flex items-center gap-2 border-b border-slate-700 pb-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    Create Debate Match
+                </h3>
+                <form action="/admin/create_match" method="post">
+                    <div class="mb-5 flex justify-center">
+                        <select name="round_name" required class="block w-64 py-2 border border-slate-600 rounded-md bg-slate-800 text-amber-400 font-bold text-center appearance-none focus:ring-amber-500">
+                            <option value="R1">Preliminary Round 1</option>
+                            <option value="R2">Preliminary Round 2</option>
+                            <option value="R3">Preliminary Round 3</option>
+                            <option value="R4">Preliminary Round 4</option>
+                            <option value="R5">Preliminary Round 5</option>
+                            <option value="R6">Preliminary Round 6</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                        <!-- Team 1 -->
+                        <div class="space-y-3 bg-slate-900/50 p-4 rounded-lg border border-slate-700 relative">
+                            <h4 class="text-center font-bold text-blue-400 uppercase tracking-widest text-sm mb-3">Team 1</h4>
+                            {% for i in range(1, 4) %}
+                            <select name="t1_m{{i}}" class="candidate-select w-full bg-slate-900 border border-slate-600 rounded py-2 px-2 text-sm text-slate-300">
+                                <option value="">Select Candidate {{i}} (Leave Blank if None)</option>
+                                <option value="SWING_1">System: Swing Speaker 1</option>
+                                <option value="SWING_2">System: Swing Speaker 2</option>
+                                {% for name in candidates.keys() %}
+                                {% if not name.startswith("SWING_") %}
+                                <option value="{{ name }}">{{ name }}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
+                            {% endfor %}
+                        </div>
+
+                        <!-- VS Bubble -->
+                        <div class="hidden md:flex absolute left-1/2 transform -translate-x-1/2 items-center justify-center h-[200px] pointer-events-none z-10">
+                            <div class="bg-amber-500 font-black italic text-slate-900 rounded-full h-12 w-12 flex items-center justify-center border-4 border-slate-800 shadow-xl text-sm">
+                                VS
+                            </div>
+                        </div>
+
+                        <!-- Team 2 -->
+                        <div class="space-y-3 bg-slate-900/50 p-4 rounded-lg border border-slate-700 relative">
+                            <h4 class="text-center font-bold text-red-400 uppercase tracking-widest text-sm mb-3">Team 2</h4>
+                            {% for i in range(1, 4) %}
+                            <select name="t2_m{{i}}" class="candidate-select w-full bg-slate-900 border border-slate-600 rounded py-2 px-2 text-sm text-slate-300">
+                                <option value="">Select Candidate {{i}} (Leave Blank if None)</option>
+                                <option value="SWING_1">System: Swing Speaker 1</option>
+                                <option value="SWING_2">System: Swing Speaker 2</option>
+                                {% for name in candidates.keys() %}
+                                {% if not name.startswith("SWING_") %}
+                                <option value="{{ name }}">{{ name }}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <!-- Motion Selector -->
+                    <div class="mb-6" id="motionSelectorWrapper">
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 text-center">Debate Motion <span class="text-slate-500 font-normal normal-case">(optional)</span></label>
+                        <select name="motion_id" id="motionSelect" class="block w-full py-2 px-4 border border-slate-600 rounded-md bg-slate-800 text-white text-sm text-center appearance-none focus:ring-amber-500">
+                            <option value="">— No motion selected —</option>
+                            {% for m in motions %}
+                            <option value="{{ m.id }}" data-round="{{ m.round }}">{{ m.round }}: {{ m.text[:80] }}{% if m.text|length > 80 %}...{% endif %}</option>
+                            {% endfor %}
+                        </select>
+                        <p id="motionHint" class="text-[10px] text-slate-500 text-center mt-1 hidden">No published motions for this round yet.</p>
+                    </div>
+
+                    <!-- Room Selector -->
+                    <div class="mb-6">
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 text-center">Assign Debate Room</label>
+                        <select name="room" required class="block w-full py-2 px-4 border border-slate-600 rounded-md bg-slate-800 text-white font-bold text-center appearance-none focus:ring-amber-500">
+                            <option value="Main Auditorium">Main Auditorium</option>
+                            <option value="Room 1">Room 1</option>
+                            <option value="Room 2">Room 2</option>
+                            <option value="Room 3">Room 3</option>
+                            <option value="Room 4">Room 4</option>
+                            <option value="Room 5">Room 5</option>
+                            <option value="Room 6">Room 6</option>
+                            <option value="Room 7">Room 7</option>
+                            <option value="Room 8">Room 8</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-slate-900 font-bold uppercase tracking-widest rounded-lg transition-all shadow-lg font-serif">
+                        Schedule Matchup
+                    </button>
+                    <p class="text-xs text-slate-500 text-center mt-3 mb-4">Scheduled matches will appear below.</p>
+                </form>
+                
+                <div class="mt-8 pt-6 border-t border-red-900/60">
+                    <button type="button" 
+                       onclick="openResetModal()"
+                       class="w-full flex items-center justify-center gap-2 py-3 bg-red-900/40 hover:bg-red-800 text-red-200 text-xs font-bold uppercase tracking-widest rounded-lg transition-all border border-red-700/50 shadow-lg cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        Clear Full Tournament (Reset Progress)
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if not rounds %}
+            <div class="text-center py-20 bg-slate-800/30 rounded-2xl border border-slate-700/30 max-w-2xl mx-auto">
+                <svg class="mx-auto h-16 w-16 text-slate-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <h3 class="text-xl font-serif text-slate-300 mb-2">No Matches Scheduled Yet</h3>
+                <p class="text-slate-500">Admins have not formed any teams yet.</p>
+            </div>
+        {% else %}
+            <div class="space-y-12">
+                {% for round_name, match_list in rounds.items() %}
+                <div>
+                    <h2 class="text-2xl font-bold text-amber-500 border-b border-slate-700 pb-3 mb-6 font-serif uppercase tracking-widest">{{ round_name }} Matches</h2>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {% for match in match_list %}
+                        <div class="glass shadow-xl rounded-xl p-6 relative border-l-4 {% if match.status == 'Completed' %}border-green-500{% else %}border-amber-500{% endif %}">
+                            
+                            <!-- Badges & Admin Scoring -->
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-full {% if match.status == 'Completed' %}bg-green-900/50 text-green-400 border border-green-600{% else %}bg-amber-900/40 text-amber-500 border border-amber-600/50{% endif %}">
+                                    {{ match.status }}
+                                </span>
+                                
+                                {% if match.status == 'Pending' and is_admin %}
+                                <a href="/admin/score/{{ match.id }}" class="bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors shadow shadow-amber-900/50 uppercase tracking-widest flex items-center gap-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                    Score Match
+                                </a>
+                                {% elif match.status == 'Completed' %}
+                                <div class="flex items-center gap-3">
+                                    <span class="text-sm font-bold text-slate-300">Winner: <span class="text-amber-400">{{ match.winner }}</span></span>
+                                    {% if is_admin %}
+                                    <form action="/admin/reset_match/{{ match.id }}" method="post" onsubmit="return confirm('Erase marks and mathematically reverse this match to Pending? (Blocked if future rounds have started)');">
+                                        <button type="submit" class="bg-red-900/80 hover:bg-red-500 border border-red-500/50 text-[10px] font-bold px-2 py-1.5 rounded text-white shadow uppercase tracking-widest transition-colors">Undo</button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                                <!-- Team 1 -->
+                                <div class="w-full bg-slate-900/60 rounded-lg p-4 border border-slate-700">
+                                    <h4 class="text-center text-xs font-bold text-blue-400 uppercase tracking-widest mb-3 border-b border-slate-700/50 pb-2">Team 1</h4>
+                                    <ul class="space-y-2">
+                                        {% for member in match.team1 %}
+                                        <li class="flex items-center gap-2 text-sm text-slate-300">
+                                            <div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                                            {% if member.startswith("SWING_") %} <i class="text-slate-500">System Swing</i> {% else %} <span class="font-bold">{{ member }}</span> {% endif %}
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+
+                                <!-- VS -->
+                                <div class="flex-shrink-0 bg-slate-800 rounded-full h-10 w-10 flex items-center justify-center font-black italic text-amber-500 border border-slate-600 shadow-lg text-xs">
+                                    VS
+                                </div>
+
+                                <!-- Team 2 -->
+                                <div class="w-full bg-slate-900/60 rounded-lg p-4 border border-slate-700">
+                                    <h4 class="text-center text-xs font-bold text-red-400 uppercase tracking-widest mb-3 border-b border-slate-700/50 pb-2">Team 2</h4>
+                                    <ul class="space-y-2">
+                                        {% for member in match.team2 %}
+                                        <li class="flex items-center gap-2 text-sm text-slate-300">
+                                            <div class="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+                                            {% if member.startswith("SWING_") %} <i class="text-slate-500">System Swing</i> {% else %} <span class="font-bold">{{ member }}</span> {% endif %}
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 pt-4 border-t border-slate-700/50 flex justify-end">
+                                <a href="/match_poster/{{ match.id }}" target="_blank" class="bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg shadow shadow-indigo-900/50 uppercase tracking-widest flex items-center gap-2 transition-colors border border-indigo-500">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    Generate Poster
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Custom Reset Modal -->
+    <div id="resetModal" class="modal-overlay">
+        <div class="modal-content glass max-w-md w-full p-8 rounded-3xl border-2 border-red-500/30 shadow-[0_0_50px_rgba(239,68,68,0.2)] text-center">
+            <div class="w-20 h-20 bg-red-900/30 border-2 border-red-500/50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+            <h3 class="text-2xl font-serif text-white font-bold mb-4 uppercase tracking-wider">Dangerous Action</h3>
+            <p class="text-slate-400 text-sm mb-8 leading-relaxed">
+                Are you sure you want to completely wipe all scheduled matches, scores, and permanent teams? 
+                <span class="text-red-400 font-bold block mt-2">The candidate roster will remain intact, but all progress will be lost!</span>
+            </p>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="closeResetModal()" class="py-3 px-6 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition-all border border-slate-600">Cancel</button>
+                <a href="/admin/reset_tournament" class="py-3 px-6 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl transition-all shadow-[0_0_20px_rgba(239,68,68,0.4)] flex items-center justify-center">YES, RESET</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modal Logic
+        function openResetModal() {
+            document.getElementById('resetModal').classList.add('active');
+        }
+        function closeResetModal() {
+            document.getElementById('resetModal').classList.remove('active');
+        }
+
+        // Dynamic dropdown filtering
+        const selects = document.querySelectorAll('.candidate-select');
+        function updateSelects() {
+            const selectedValues = Array.from(selects).map(s => s.value).filter(v => v !== '');
+            
+            selects.forEach(select => {
+                const currentValue = select.value;
+                Array.from(select.options).forEach(option => {
+                    if (option.value && option.value !== currentValue && selectedValues.includes(option.value)) {
+                        option.disabled = true;
+                    } else {
+                        option.disabled = false;
+                    }
+                });
+            });
+        }
+        selects.forEach(select => select.addEventListener('change', updateSelects));
+
+        // Motion filter: only show motions for the selected round
+        const roundSelect = document.querySelector('select[name="round_name"]');
+        const motionSelect = document.getElementById('motionSelect');
+        const motionHint = document.getElementById('motionHint');
+
+        function filterMotions() {
+            if (!roundSelect || !motionSelect) return;
+            const selectedRound = roundSelect.value;
+            let anyVisible = false;
+
+            Array.from(motionSelect.options).forEach(opt => {
+                if (opt.value === '') { return; } // keep placeholder
+                const optRound = opt.getAttribute('data-round');
+                if (optRound === selectedRound) {
+                    opt.hidden = false;
+                    anyVisible = true;
+                } else {
+                    opt.hidden = true;
+                    if (opt.selected) {
+                        motionSelect.value = '';
+                    }
+                }
+            });
+
+            if (motionHint) {
+                motionHint.classList.toggle('hidden', anyVisible);
+            }
+        }
+
+        if (roundSelect) {
+            roundSelect.addEventListener('change', filterMotions);
+            filterMotions(); // run on page load
+        }
+    </script>
+</body>
+</html>

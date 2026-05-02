@@ -1,0 +1,12 @@
+[
+    {
+        "username": "master",
+        "password": "Crown!MasterKey_2026",
+        "role": "master"
+    },
+    {
+        "username": "admin",
+        "password": "123",
+        "role": "admin"
+    }
+]

@@ -1,0 +1,79 @@
+{
+    "Candidates": {
+        "1": {
+            "Candidate Name": "1",
+            "Alias": "1",
+            "Class": "Class 1",
+            "Level": "Beginner",
+            "Institute": "CIDS",
+            "Phone": "999999",
+            "Notes": "",
+            "Wins": 0
+        },
+        "2": {
+            "Candidate Name": "2",
+            "Alias": null,
+            "Class": "Class 2",
+            "Level": "Pro",
+            "Institute": "CIDS",
+            "Phone": "88888",
+            "Notes": "",
+            "Wins": 0
+        },
+        "24": {
+            "Candidate Name": "24",
+            "Alias": ",mm",
+            "Class": "Class 3",
+            "Level": "Intermediate",
+            "Institute": "mn",
+            "Phone": "666",
+            "Notes": "",
+            "Wins": 0
+        },
+        "45": {
+            "Candidate Name": "45",
+            "Alias": "555",
+            "Class": "Class 2",
+            "Level": "Beginner",
+            "Institute": "7ll",
+            "Phone": "6545652",
+            "Notes": "",
+            "Wins": 0,
+            "Avatar": "45_80601f.png"
+        },
+        "556": {
+            "Candidate Name": "556",
+            "Alias": "6969",
+            "Class": "Class 1",
+            "Level": "Intermediate",
+            "Institute": "6lj",
+            "Phone": "456456",
+            "Notes": "",
+            "Wins": 0,
+            "Avatar": "556_0b1fa8.png"
+        }
+    },
+    "Rounds": {
+        "R1": [
+            {
+                "id": "f7b54dfc",
+                "is_outround": false,
+                "team1": [
+                    "2",
+                    "45",
+                    "24"
+                ],
+                "team2": [
+                    "1",
+                    "556",
+                    "SWING_1"
+                ],
+                "status": "Pending",
+                "room": "Room 1",
+                "motion": "qwww",
+                "winner": null
+            }
+        ]
+    },
+    "OutroundTeams": {}
+}

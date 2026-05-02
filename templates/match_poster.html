@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Crown | VS Poster</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <style>
+        body { background-color: #0b1120; color: #fff; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; font-family: 'Inter', sans-serif; padding: 40px 0;}
+        .font-serif { font-family: 'Playfair Display', serif; }
+        
+        /* Preview Scaler */
+        .preview-box {
+            width: 1080px;
+            height: 1920px;
+            zoom: 0.4; /* Desktop preview */
+            margin: 20px auto;
+            position: relative;
+        }
+
+        @media (max-width: 768px) {
+            .preview-box { zoom: 0.2; }
+        }
+
+        #posterArea {
+            width: 1080px;
+            height: 1920px;
+            background-color: #020617;
+            background-image: linear-gradient(135deg, #0f172a 0%, #020617 100%);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 100px rgba(0,0,0,1);
+        }
+
+        @media screen and (max-height: 900px) {
+            .preview-container { transform: scale(0.35); height: 700px; }
+        }
+
+        .avatar-frame {
+            border-radius: 10px;
+            box-shadow: 0px 20px 40px rgba(0,0,0,0.8);
+            border: 4px solid rgba(255,255,255,0.1);
+            overflow: hidden;
+            background: #1e293b;
+            position: relative;
+        }
+
+        .avatar-img {
+            width: 100%; height: 100%; object-fit: cover;
+            filter: contrast(1.1) saturate(1.1);
+        }
+
+        /* Background Effects */
+        .poster-bg-texture {
+            position: absolute; inset: 0; opacity: 0.1;
+            background-image: radial-gradient(#f59e0b 1px, transparent 1px);
+            background-size: 40px 40px; pointer-events: none;
+        }
+        .poster-glow-left {
+            position: absolute; top: 0%; left: -20%; width: 1200px; height: 1200px;
+            background: radial-gradient(circle, rgba(59,130,246,0.2) 0%, rgba(59,130,246,0) 70%);
+            pointer-events: none; z-index: 1;
+        }
+        .poster-glow-right {
+            position: absolute; bottom: 0%; right: -20%; width: 1200px; height: 1200px;
+            background: radial-gradient(circle, rgba(225,29,72,0.2) 0%, rgba(225,29,72,0) 70%);
+            pointer-events: none; z-index: 1;
+        }
+        .watermark {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-10deg);
+            font-size: 200px; font-weight: 900; opacity: 0.05; font-family: 'Playfair Display', serif;
+            white-space: nowrap; pointer-events: none; color: #f59e0b; text-transform: uppercase;
+        }
+
+        /* Lightning split overlay for VS */
+        .lightning-divider {
+            position: absolute; top: 0%; left: 50%; width: 220px; height: 100%;
+            transform: translateX(-50%);
+            z-index: 10;
+            pointer-events: none;
+            opacity: 0.9;
+        }
+
+        .dramatic-name-left {
+            transform: skew(-10deg);
+            text-shadow: 
+                -2px -2px 0 #000,  
+                 2px -2px 0 #000,
+                -2px  2px 0 #000,
+                 2px  2px 0 #000,
+                 0 0 20px rgba(59, 130, 246, 0.8);
+        }
+
+        .dramatic-name-right {
+            transform: skew(10deg);
+            text-shadow: 
+                -2px -2px 0 #000,  
+                 2px -2px 0 #000,
+                -2px  2px 0 #000,
+                 2px  2px 0 #000,
+                 0 0 20px rgba(225, 29, 72, 0.8);
+        }
+
+        .alias-glow {
+            text-shadow: 
+                -1px -1px 0 #000,  
+                 1px -1px 0 #000,
+                -1px  1px 0 #000,
+                 1px  1px 0 #000,
+                 0 0 10px rgba(245, 158, 11, 0.6);
+        }
+
+        /* Subtle dark vignette behind names for contrast */
+        .name-backing {
+            background: radial-gradient(circle at center, rgba(0,0,0,0.6) 0%, transparent 80%);
+            padding: 20px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Export Button Area -->
+    <div class="flex items-center gap-4 bg-slate-900/80 backdrop-blur p-4 rounded-xl border border-slate-700 sticky top-4 z-[100] mb-8 shadow-2xl">
+        <button onclick="downloadPoster()" class="bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold px-8 py-3 rounded-lg shadow-lg uppercase tracking-widest text-sm flex items-center gap-2 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+            Download HD Flyer
+        </button>
+        <a href="javascript:history.back()" class="bg-slate-800 hover:bg-slate-700 text-white uppercase text-xs font-bold tracking-widest transition-colors py-3 px-6 rounded-lg border border-slate-600">Cancel</a>
+    </div>
+
+    <div class="preview-box">
+        <div id="posterArea">
+        <div class="poster-bg-texture"></div>
+        <div class="poster-glow-left"></div>
+        <div class="poster-glow-right"></div>
+        
+        <!-- Header Section -->
+        <div style="position: absolute; top: 50px; left: 0; width: 100%; text-align: center; z-index: 50;">
+            <div style="margin-bottom: 5px;">
+                <svg width="100" height="100" style="color: #f59e0b; margin: 0 auto; filter: drop-shadow(0 0 15px rgba(245,158,11,0.5));" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/>
+                </svg>
+            </div>
+            <p style="color: #fff; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6em; font-size: 24px; opacity: 0.8; margin-bottom: 5px;">The Crown Championship</p>
+            <h1 style="font-family: 'Playfair Display', serif; font-size: 180px; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: 0.1em; margin: 0; line-height: 0.8;">{{ round_name }}</h1>
+        </div>
+
+        <svg style="position: absolute; top: 0; left: 50%; margin-left: -200px; width: 400px; height: 100%; z-index: 10; opacity: 0.7;" viewBox="0 0 100 1000" preserveAspectRatio="none">
+            <path d="M55 0 L15 500 L80 500 L35 1000 L95 440 L50 440 Z" fill="#f59e0b"/>
+            <path d="M55 0 L15 500 L80 500 L35 1000 L95 440 L50 440 Z" fill="none" stroke="white" stroke-width="2" opacity="0.5"/>
+        </svg>
+
+        <!-- VS Badge -->
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100;">
+            <div style="background: #fff; color: #000; width: 140px; height: 140px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 80px; font-weight: 900; font-style: italic; box-shadow: 0 0 100px rgba(255,255,255,0.4); border: 10px solid #020617;">
+                VS
+            </div>
+        </div>
+
+        <!-- Team 1: Left Side -->
+        <div style="position: absolute; top: 480px; left: 0; width: 50%; height: 1100px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; z-index: 30; padding: 40px;">
+            <div style="width: 100%; text-align: center; margin-bottom: 40px;">
+                <p style="color: #60a5fa; font-size: 32px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.3em; border-bottom: 4px solid #3b82f6; display: inline-block; padding-bottom: 8px;">Opposition</p>
+            </div>
+            
+            <div style="position: relative;">
+                <div style="width: 440px; height: 580px; background: rgba(30, 58, 138, 0.4); border: 2px solid #3b82f6; border-radius: 20px; box-shadow: 0 40px 80px rgba(0,0,0,0.6); overflow: hidden; position: relative;">
+                    {% if t1_players|length > 0 and t1_players[0].get('Avatar') %}
+                        <img crossorigin="anonymous" style="width: 100%; height: 100%; object-fit: cover;" src="{{ url_for('static', filename='avatars/' ~ t1_players[0]['Avatar']) }}">
+                    {% else %}
+                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #1e3a8a; font-size: 200px;">👤</div>
+                    {% endif %}
+                    <!-- Gradient overlay on photo -->
+                    <div style="position: absolute; inset: 0; background: linear-gradient(to top, #020617 0%, transparent 40%);"></div>
+                </div>
+            </div>
+
+            <div style="width: 100%; text-align: center; margin-top: 30px;">
+                {% for p in t1_players %}
+                    <div style="margin-bottom: 20px;">
+                        <span style="display: block; font-size: 64px; font-weight: 950; color: #fff; text-transform: uppercase; font-style: italic; line-height: 0.8; letter-spacing: -2px;">{{ p['Name'] }}</span>
+                        <span style="display: block; font-size: 28px; color: #f59e0b; font-weight: 700; font-family: 'Playfair Display', serif; font-style: italic; margin-top: 10px; opacity: 0.9; min-height: 28px;">
+                            {% if p.get('Alias') %}"{{ p['Alias'] }}"{% else %}&nbsp;{% endif %}
+                        </span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Team 2: Right Side -->
+        <div style="position: absolute; top: 480px; right: 0; width: 50%; height: 1100px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; z-index: 30; padding: 40px;">
+            <div style="width: 100%; text-align: center; margin-bottom: 40px;">
+                <p style="color: #fb7185; font-size: 32px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.3em; border-bottom: 4px solid #e11d48; display: inline-block; padding-bottom: 8px;">Government</p>
+            </div>
+
+            <div style="position: relative;">
+                <div style="width: 440px; height: 580px; background: rgba(136, 19, 55, 0.4); border: 2px solid #e11d48; border-radius: 20px; box-shadow: 0 40px 80px rgba(0,0,0,0.6); overflow: hidden; position: relative;">
+                    {% if t2_players|length > 0 and t2_players[0].get('Avatar') %}
+                        <img crossorigin="anonymous" style="width: 100%; height: 100%; object-fit: cover;" src="{{ url_for('static', filename='avatars/' ~ t2_players[0]['Avatar']) }}">
+                    {% else %}
+                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #881337; font-size: 200px;">👤</div>
+                    {% endif %}
+                    <!-- Gradient overlay on photo -->
+                    <div style="position: absolute; inset: 0; background: linear-gradient(to top, #020617 0%, transparent 40%);"></div>
+                </div>
+            </div>
+
+            <div style="width: 100%; text-align: center; margin-top: 30px;">
+                {% for p in t2_players %}
+                    <div style="margin-bottom: 20px;">
+                        <span style="display: block; font-size: 64px; font-weight: 950; color: #fff; text-transform: uppercase; font-style: italic; line-height: 0.8; letter-spacing: -2px;">{{ p['Name'] }}</span>
+                        <span style="display: block; font-size: 28px; color: #f59e0b; font-weight: 700; font-family: 'Playfair Display', serif; font-style: italic; margin-top: 10px; opacity: 0.9; min-height: 28px;">
+                            {% if p.get('Alias') %}"{{ p['Alias'] }}"{% else %}&nbsp;{% endif %}
+                        </span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Room Banner: Streamlined Single Line -->
+        <div style="position: absolute; bottom: 300px; left: 0; width: 100%; z-index: 50; text-align: center;">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 40px; color: rgba(255,255,255,0.6); font-weight: 800; text-transform: uppercase; letter-spacing: 0.8em; font-size: 28px;">
+                <div style="height: 2px; width: 150px; background: linear-gradient(to left, rgba(255,255,255,0.2), transparent);"></div>
+                <span>ROOM: {{ match.room }}</span>
+                <div style="height: 2px; width: 150px; background: linear-gradient(to right, rgba(255,255,255,0.2), transparent);"></div>
+            </div>
+        </div>
+
+        <!-- Footer Section -->
+        <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 350px; background: linear-gradient(to top, #020617 60%, transparent); display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 80px; z-index: 60;">
+            <div style="background: #fff; color: #000; padding: 20px 80px; border-radius: 9999px; display: flex; align-items: center; gap: 30px; box-shadow: 0 0 50px rgba(255,255,255,0.3);">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/>
+                </svg>
+                <span style="font-weight: 950; letter-spacing: 0.3em; font-size: 48px; text-transform: uppercase;">The Crown 2026</span>
+            </div>
+            <p style="color: rgba(255,255,255,0.4); font-size: 24px; text-transform: uppercase; font-weight: bold; letter-spacing: 0.8em; margin-top: 40px;">Live Tournament Match Card</p>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        function downloadPoster() {
+            const btn = document.querySelector('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<svg class="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Rendering HD Flyer...`;
+            
+            // Wait for fonts to be ready
+            document.fonts.ready.then(() => {
+                const element = document.getElementById('posterArea');
+                
+                html2canvas(element, {
+                    scale: 2, // Capture at 2x for better quality
+                    backgroundColor: '#020617',
+                    useCORS: true,
+                    // allowTaint: false, // Default is false, which is required for toDataURL to work
+                    width: 1080,
+                    height: 1920,
+                    logging: true, // Enable logging for debugging
+                    onclone: (clonedDoc) => {
+                        // Crucial: Reset scaling in the clone used for capture
+                        const clonedPoster = clonedDoc.getElementById('posterArea');
+                        clonedPoster.style.transform = 'none';
+                        clonedPoster.style.zoom = '1';
+                        clonedPoster.style.position = 'relative';
+                        clonedPoster.style.top = '0';
+                        clonedPoster.style.left = '0';
+                        clonedPoster.style.margin = '0';
+                        
+                        // Also reset any zoom on the parent preview-box in the clone
+                        const parent = clonedPoster.parentElement;
+                        if (parent && parent.classList.contains('preview-box')) {
+                            parent.style.zoom = '1';
+                            parent.style.transform = 'none';
+                            parent.style.padding = '0';
+                            parent.style.margin = '0';
+                        }
+                    }
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    const safeRoundName = `{{ round_name }}`.replace(/[^a-z0-9]/gi, '_');
+                    link.download = `Crown_Flyer_{{ match.id }}_${safeRoundName}.png`;
+                    link.href = canvas.toDataURL("image/png");
+                    link.click();
+                    btn.innerHTML = originalText;
+                }).catch(err => {
+                    console.error("Poster Generation Failed:", err);
+                    alert("Error generating flyer image: " + err.message);
+                    btn.innerHTML = originalText;
+                });
+            });
+        }
+    </script>
+</body>
+</html>

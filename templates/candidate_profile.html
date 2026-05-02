@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Crown | {{ candidate.get('Candidate Name') }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; 
+            background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), radial-gradient(at 50% 0%, hsla(225,39%,30%,0.2) 0, transparent 50%);
+        }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+    </style>
+</head>
+<body class="text-slate-200 min-h-screen pb-12">
+    <!-- Navigation -->
+    <nav class="bg-slate-900/95 border-b border-amber-600/30 sticky top-0 z-50 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center space-x-8">
+                    {% if archive_meta %}
+                    <a href="/hall_of_fame/{{ archive_meta.id }}" class="flex-shrink-0 flex items-center gap-2">
+                    {% else %}
+                    <a href="/" class="flex-shrink-0 flex items-center gap-2">
+                    {% endif %}
+                        <svg class="h-8 w-auto text-amber-500" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/>
+                        </svg>
+                        <span class="text-xl font-bold font-serif text-white uppercase tracking-widest">The Crown</span>
+                    </a>
+                </div>
+                <div class="flex items-center">
+                    {% if archive_meta %}
+                    <a href="/hall_of_fame/{{ archive_meta.id }}" class="text-amber-500 hover:text-amber-400 text-sm font-bold uppercase tracking-wider">← Back to Archive ({{ archive_meta.name }})</a>
+                    {% else %}
+                    <a href="/" class="text-amber-500 hover:text-amber-400 text-sm font-bold uppercase tracking-wider">← Back to Leaderboard</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-6xl mx-auto px-4 mt-10">
+        <!-- Profile Hero -->
+        <div class="glass rounded-3xl p-8 mb-8 flex flex-col md:flex-row items-center gap-8 shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+            
+            <!-- Avatar -->
+            <div class="relative group {% if is_admin and not archive_meta %}cursor-pointer{% else %}cursor-default{% endif %}" {% if is_admin and not archive_meta %}onclick="if(event.target.id!=='avatarUpload') document.getElementById('avatarUpload').click()"{% endif %}>
+                <div class="w-32 h-32 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-slate-900 shadow-[0_0_20px_rgba(245,158,11,0.3)] overflow-hidden relative">
+                    {% if candidate.get('Avatar') %}
+                        <img src="{{ url_for('static', filename='avatars/' ~ candidate.get('Avatar')) }}?t={{ range(1, 100000) | random }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <span class="text-5xl font-black">{{ candidate.get('Candidate Name')[0] }}{{ candidate.get('Candidate Name').split(' ')[1][0] if ' ' in candidate.get('Candidate Name') else '' }}</span>
+                    {% endif %}
+                    
+                    {% if is_admin and not archive_meta %}
+                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white backdrop-blur-sm pointer-events-none">
+                        <svg class="w-6 h-6 mb-1 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-center leading-tight">Update<br>Photo</span>
+                    </div>
+                    <input type="file" id="avatarUpload" class="hidden" accept="image/*">
+                    {% endif %}
+                </div>
+                <div class="absolute -bottom-2 -right-2 bg-slate-900 border-2 border-amber-500 text-amber-500 text-xs font-bold px-2 py-1 rounded-lg z-10 shadow-lg">Rank #{{ candidate.get('Rank', '?') }}</div>
+            </div>
+
+            <div class="text-center md:text-left">
+                <h1 class="text-4xl md:text-5xl font-bold font-serif text-white mb-2">{{ candidate.get('Candidate Name') }}</h1>
+                {% if candidate.get('Alias') %}
+                    <p class="text-amber-500 text-xl font-medium tracking-tight mb-4">"{{ candidate.get('Alias') }}"</p>
+                {% endif %}
+                
+                <div class="flex flex-wrap justify-center md:justify-start gap-4">
+                    <div class="bg-slate-800/50 px-4 py-2 rounded-xl border border-slate-700/50">
+                        <span class="block text-[10px] uppercase tracking-widest text-slate-400 font-bold">Class</span>
+                        <span class="text-2xl font-black text-blue-400">{{ candidate.get('Class') or '-' }}</span>
+                    </div>
+                    <div class="bg-slate-800/50 px-4 py-2 rounded-xl border border-slate-700/50">
+                        <span class="block text-[10px] uppercase tracking-widest text-slate-400 font-bold">Level</span>
+                        <span class="text-2xl font-black text-purple-400">{{ candidate.get('Level') or '-' }}</span>
+                    </div>
+                    <div class="bg-slate-800/50 px-4 py-2 rounded-xl border border-slate-700/50">
+                        <span class="block text-[10px] uppercase tracking-widest text-slate-400 font-bold">Total Wins</span>
+                        <span class="text-2xl font-black text-green-400">{{ candidate.get('Wins', 0) }}</span>
+                    </div>
+                    <div class="bg-slate-800/50 px-4 py-2 rounded-xl border border-slate-700/50">
+                        <span class="block text-[10px] uppercase tracking-widest text-slate-400 font-bold">Prelim Marks</span>
+                        <span class="text-2xl font-black text-amber-500">{{ candidate.get('PrelimTotal', '0.00') }}</span>
+                    </div>
+                    <div class="bg-slate-800/50 px-4 py-2 rounded-xl border border-slate-700/50">
+                        <span class="block text-[10px] uppercase tracking-widest text-slate-400 font-bold">Outround Marks</span>
+                        <span class="text-2xl font-black text-amber-500">{{ candidate.get('OutroundTotal', '0.00') }}</span>
+                    </div>
+                    <div class="bg-amber-900/20 px-4 py-2 rounded-xl border border-amber-500/30">
+                        <span class="block text-[10px] uppercase tracking-widest text-amber-500 font-bold">Highest Level</span>
+                        <span class="text-lg font-bold text-amber-500 uppercase">{{ candidate.get('HighestStage', 'Prelims') }}</span>
+                    </div>
+                    {% if candidate.get('Eliminated_At') %}
+                    <div class="bg-red-900/20 px-4 py-2 rounded-xl border border-red-500/30">
+                        <span class="block text-[10px] uppercase tracking-widest text-red-400 font-bold">Status</span>
+                        <span class="text-lg font-bold text-red-500 uppercase">Eliminated At {{ candidate.get('Eliminated_At') }}</span>
+                    </div>
+                    {% else %}
+                    <div class="bg-green-900/20 px-4 py-2 rounded-xl border border-green-500/30">
+                        <span class="block text-[10px] uppercase tracking-widest text-green-400 font-bold">Status</span>
+                        <span class="text-lg font-bold text-green-500 uppercase">Active</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Combat Profiler (Radar Chart) -->
+            <div class="lg:col-span-1 glass rounded-3xl p-8 shadow-xl flex flex-col">
+                <h2 class="text-xl font-bold text-white font-serif mb-6 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    Combat Profiler
+                </h2>
+                <div class="flex-1 w-full relative min-h-[250px]">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Marks Progression Chart -->
+            <div class="lg:col-span-1 glass rounded-3xl p-8 shadow-xl flex flex-col">
+                <h2 class="text-xl font-bold text-white font-serif mb-6 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                    Progression
+                </h2>
+                <div class="flex-1 w-full relative min-h-[250px]">
+                    <canvas id="marksChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Side Column for Stats & Registration Info -->
+            <div class="flex flex-col gap-8">
+                <!-- Stats Table -->
+                <div class="glass rounded-3xl p-8 shadow-xl overflow-hidden">
+                    <h3 class="text-xl font-bold text-white font-serif mb-6 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Quick Breakdown
+                    </h3>
+                    <div class="space-y-4">
+                        {% set max_mark = history | map(attribute='marks') | list | max if history else 0 %}
+                        <div class="flex justify-between items-center py-3 border-b border-slate-700/50">
+                            <span class="text-slate-400 text-sm">Best Round Mark</span>
+                            <span class="font-bold text-amber-400 text-lg">{{ max_mark }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-3 border-b border-slate-700/50">
+                            <span class="text-slate-400 text-sm">Rounds Played</span>
+                            <span class="font-bold text-white">{{ history | length }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-3">
+                            <span class="text-slate-400 text-sm">Win Rate</span>
+                            <span class="font-bold text-green-400">
+                                {% set wins = history | selectattr('result', 'equalto', 'Win') | list | length %}
+                                {{ ((wins / history|length) * 100) | round(0) if history|length > 0 else 0 }}%
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Registration Details Card -->
+                <div class="glass rounded-3xl p-8 shadow-xl overflow-hidden border-t-4 border-blue-500">
+                    <h3 class="text-xl font-bold text-white font-serif mb-6 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path></svg>
+                        Registration Info
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="py-2 border-b border-slate-700/50 flex flex-col">
+                            <span class="text-slate-400 text-[10px] uppercase tracking-widest font-bold mb-1">Institute</span>
+                            <span class="font-medium text-white">{{ candidate.get('Institute') or 'Not specified' }}</span>
+                        </div>
+                        <div class="py-2 border-b border-slate-700/50 flex flex-col">
+                            <span class="text-slate-400 text-[10px] uppercase tracking-widest font-bold mb-1">Phone Number</span>
+                            <span class="font-medium text-white">{{ candidate.get('Phone') or 'Not specified' }}</span>
+                        </div>
+                        <div class="py-2 flex flex-col">
+                            <span class="text-slate-400 text-[10px] uppercase tracking-widest font-bold mb-1">Notes</span>
+                            {% if candidate.get('Notes') %}
+                                <span class="font-medium text-slate-300 text-sm bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 italic">{{ candidate.get('Notes') }}</span>
+                            {% else %}
+                                <span class="font-medium text-slate-500 italic">None</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Match History -->
+        <div class="mt-8 glass rounded-3xl shadow-xl overflow-hidden">
+            <div class="px-8 py-6 bg-slate-800/50 border-b border-slate-700/50 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-white font-serif tracking-wide">Match History</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-900/50 text-amber-500 text-[10px] font-bold uppercase tracking-widest">
+                        <tr>
+                            <th class="px-8 py-4">Round</th>
+                            <th class="px-8 py-4 text-center">Outcome</th>
+                            <th class="px-8 py-4">Opponent(s)</th>
+                            <th class="px-8 py-4 text-right">Marks</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-700/30">
+                        {% for h in history %}
+                        <tr class="hover:bg-slate-800/40 transition-colors">
+                            <td class="px-8 py-4 font-bold text-slate-300">{{ h.round }}</td>
+                            <td class="px-8 py-4 text-center">
+                                {% if h.result == 'Win' %}
+                                    <span class="bg-green-900/40 text-green-400 px-3 py-1 rounded-full text-xs font-bold border border-green-500/30">WIN</span>
+                                {% elif h.result == 'Loss' %}
+                                    <span class="bg-red-900/40 text-red-400 px-3 py-1 rounded-full text-xs font-bold border border-red-500/30">LOSS</span>
+                                {% elif h.result == 'Tie' %}
+                                    <span class="bg-slate-700 text-slate-300 px-3 py-1 rounded-full text-xs font-bold border border-slate-600">TIE</span>
+                                {% else %}
+                                    <span class="bg-amber-900/40 text-amber-500 px-3 py-1 rounded-full text-xs font-bold border border-amber-500/30">PENDING</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-8 py-4 text-slate-400 text-sm italic">{{ h.opponent }}</td>
+                            <td class="px-8 py-4 text-right font-black text-amber-500">{{ h.marks }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cropper Modal -->
+    <div id="cropperModal" class="fixed inset-0 bg-slate-900/95 backdrop-blur-md z-[9999] hidden items-center justify-center">
+        <div class="glass w-full max-w-2xl p-6 rounded-2xl shadow-2xl border border-amber-600/30">
+            <h3 class="text-xl font-bold font-serif text-white mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path></svg>
+                Adjust Profile Picture
+            </h3>
+            <div class="w-full h-[400px] bg-black rounded-lg overflow-hidden mb-6 border border-slate-700">
+                <img id="cropperImage" class="max-w-full">
+            </div>
+            <div class="flex justify-end gap-4">
+                <button onclick="closeCropper()" class="px-6 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition-colors text-sm uppercase tracking-wider border border-slate-600">Cancel</button>
+                <button onclick="saveCroppedAvatar()" id="saveAvatarBtn" class="px-6 py-2 bg-amber-600 hover:bg-amber-500 text-slate-900 font-black rounded-xl transition-colors shadow-[0_0_15px_rgba(245,158,11,0.4)] text-sm uppercase tracking-widest flex items-center gap-2">
+                    Save Photo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('marksChart').getContext('2d');
+        const historyData = {{ history | tojson }};
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: historyData.map(h => h.round),
+                datasets: [{
+                    label: 'Marks',
+                    data: historyData.map(h => h.marks),
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    borderWidth: 4,
+                    pointBackgroundColor: '#f59e0b',
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: '#94a3b8' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#94a3b8' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        // The Crown Radar Profiler Calculation
+        const marks = historyData.map(h => h.marks);
+        const wins = historyData.filter(h => h.result === 'Win').length;
+        const totalMatches = marks.length || 1;
+        const maxMark = marks.length > 0 ? Math.max(...marks) : 75;
+        const avgMark = marks.length > 0 ? marks.reduce((a,b)=>a+b, 0) / totalMatches : 75;
+        
+        const variance = marks.length > 0 ? marks.reduce((acc, val) => acc + Math.pow(val - avgMark, 2), 0) / totalMatches : 0;
+        const stdDev = Math.sqrt(variance);
+
+        // Calculate 5 Axes (0-100 scale)
+        const peakPower = Math.min(100, Math.max(0, ((maxMark - 72) / (85 - 72)) * 100)); // Assumes 85+ is excellent
+        const consistency = Math.min(100, Math.max(0, 100 - (stdDev * 10))); // Lower deviation = better consistency
+        const winRatePct = (wins / totalMatches) * 100;
+        
+        const recentAvg = marks.slice(-2).reduce((a,b)=>a+b, 0) / Math.min(2, marks.length) || avgMark;
+        const momentum = marks.length > 2 ? Math.min(100, Math.max(0, 50 + ((recentAvg - avgMark) * 15))) : 50;
+        const endurance = Math.min(100, (totalMatches / 8) * 100); // More matches = higher endurance
+        
+        const radarCtx = document.getElementById('radarChart').getContext('2d');
+        new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: ['PEAK POWER', 'CONSISTENCY', 'WIN RATE', 'MOMENTUM', 'ENDURANCE'],
+                datasets: [{
+                    label: 'Debater Profile',
+                    data: [peakPower, consistency, winRatePct, momentum, endurance],
+                    backgroundColor: 'rgba(59, 130, 246, 0.2)', // Blue tint
+                    borderColor: '#3b82f6',
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#3b82f6',
+                    pointHoverBackgroundColor: '#ef4444',
+                    pointHoverBorderColor: '#fff',
+                    borderWidth: 2,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        pointLabels: {
+                            color: '#94a3b8',
+                            font: { family: 'Inter', size: 10, weight: 'bold' }
+                        },
+                        ticks: { display: false, min: 0, max: 100 }
+                    }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // Cropper JS File Processing Logic
+        {% if is_admin %}
+        let cropper;
+        const cropperModal = document.getElementById('cropperModal');
+        const cropperImage = document.getElementById('cropperImage');
+        const avatarInput = document.getElementById('avatarUpload');
+
+        if (avatarInput) {
+            avatarInput.addEventListener('change', function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        cropperImage.src = e.target.result;
+                        cropperModal.classList.remove('hidden');
+                        cropperModal.classList.add('flex'); // explicit flex for tailwind
+                        
+                        if (cropper) cropper.destroy();
+                        
+                        cropper = new Cropper(cropperImage, {
+                            aspectRatio: 1, // Force square crop
+                            viewMode: 1,
+                            dragMode: 'move',
+                            autoCropArea: 0.8,
+                            restore: false,
+                            guides: true,
+                            center: true,
+                            highlight: false,
+                            cropBoxMovable: true,
+                            cropBoxResizable: true,
+                            toggleDragModeOnDblclick: false,
+                        });
+                    }
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+                avatarInput.value = ''; // Reset input to allow selecting same file again
+            });
+        }
+
+        function closeCropper() {
+            cropperModal.classList.add('hidden');
+            cropperModal.classList.remove('flex');
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+        }
+
+        function saveCroppedAvatar() {
+            if (!cropper) return;
+            const btn = document.getElementById('saveAvatarBtn');
+            btn.innerHTML = 'Saving...';
+            btn.disabled = true;
+
+            const canvas = cropper.getCroppedCanvas({
+                width: 500,
+                height: 500
+            });
+            
+            const base64Image = canvas.toDataURL('image/png');
+            
+            fetch('/admin/upload_avatar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    candidate: "{{ candidate.get('Candidate Name') }}",
+                    image: base64Image
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert('Error saving avatar: ' + data.error);
+                    btn.innerHTML = 'Save Photo';
+                    btn.disabled = false;
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Network error while saving avatar.');
+                btn.innerHTML = 'Save Photo';
+                btn.disabled = false;
+            });
+        }
+        {% endif %}
+    </script>
+</body>
+</html>

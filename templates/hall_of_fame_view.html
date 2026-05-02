@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archive | {{ archive_meta.name }}</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@400;500;700;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; 
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,0.2) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,0) 0, transparent 50%);
+        }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        
+        .tab-btn.active {
+            color: #fbbf24;
+            border-bottom: 2px solid #fbbf24;
+            background: rgba(251, 191, 36, 0.1);
+        }
+        
+        /* Bracket Styling */
+        .bracket-container {
+            display: flex;
+            gap: 20px;
+            padding: 40px 20px;
+            overflow-x: auto;
+            width: 100%;
+            justify-content: flex-start; /* Better for overflow */
+        }
+        .bracket-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            flex: 1;
+            min-width: 220px;
+            max-width: 300px;
+        }
+        .matchup {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 12px;
+            padding: 12px;
+            margin: 10px 0;
+            position: relative;
+        }
+        .team-slot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .team-slot.winner {
+            color: #fbbf24;
+            background: rgba(245, 158, 11, 0.1);
+        }
+        .team-slot.loser {
+            opacity: 0.5;
+            text-decoration: line-through;
+        }
+        .vs-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.05);
+            margin: 4px 0;
+        }
+    </style>
+</head>
+<body class="text-slate-200 min-h-screen flex flex-col pt-0 bg-slate-900">
+
+    <!-- Hamburger Sidebar -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 w-64 glass z-[100] transform -translate-x-full transition-transform duration-300 shadow-2xl border-r border-slate-700/50 flex flex-col">
+        <div class="p-6 flex justify-between items-center border-b border-slate-700/50 bg-slate-900/50">
+            <span class="text-xl font-bold font-serif text-amber-500 uppercase tracking-widest">Menu</span>
+            <button onclick="toggleSidebar()" class="text-slate-400 hover:text-white transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        <div class="p-6 flex flex-col gap-6 mt-4">
+            {% if is_admin %}
+            <a href="/admin/registration" class="text-blue-400 hover:text-blue-300 text-sm font-bold uppercase tracking-wider transition-colors flex items-center gap-3">
+                📋 Registration
+            </a>
+            <a href="/admin/motions" class="text-amber-500 hover:text-amber-400 text-sm font-bold uppercase tracking-wider transition-colors flex items-center gap-3">
+                🔐 Motions Vault
+            </a>
+            {% endif %}
+            <a href="/timer" class="text-slate-300 hover:text-amber-500 text-sm font-bold uppercase tracking-wider transition-colors flex items-center gap-3">
+                ⏱️ Official Timer
+            </a>
+            <a href="/hall_of_fame" class="text-amber-500 hover:text-amber-400 text-sm font-bold uppercase tracking-wider transition-colors flex items-center gap-3">
+                🏛️ Hall of Fame
+            </a>
+            <a href="/reveal_kiosk" target="_blank" class="text-slate-300 hover:text-amber-500 text-sm font-bold uppercase tracking-wider transition-colors flex items-center gap-3">
+                📽️ Motion Reveal
+            </a>
+        </div>
+    </div>
+    <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-[90] hidden fade-in backdrop-blur-sm"></div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+    </script>
+
+    <!-- Top Navigation Bar -->
+    <nav class="bg-slate-900/95 border-b border-amber-600/30 sticky top-0 z-50 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center space-x-6">
+                    <button onclick="toggleSidebar()" class="text-slate-300 hover:text-white transition-colors ml-2 mr-2 group">
+                        <svg class="w-6 h-6 group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                    <div class="flex-shrink-0 flex items-center gap-2 pr-4 border-r border-slate-700/50">
+                        <svg class="h-8 w-auto text-amber-500 filter drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/>
+                        </svg>
+                        <span class="text-xl font-bold font-serif text-white uppercase tracking-widest hidden md:block">The Crown</span>
+                    </div>
+                    <a href="/" class="text-slate-300 hover:text-white hover:bg-slate-800 px-3 py-2 rounded-md text-sm font-bold uppercase tracking-wider transition-colors">🏆 Leaderboard</a>
+                    <a href="/matches" class="text-slate-300 hover:text-white hover:bg-slate-800 px-3 py-2 rounded-md text-sm font-bold uppercase tracking-wider transition-colors">⚔️ Matches</a>
+                    <a href="/live" target="_blank" class="text-slate-300 hover:text-amber-500 hover:bg-slate-800 px-3 py-2 rounded-md text-sm font-bold uppercase tracking-wider transition-colors">📡 Live</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    {% if is_admin %}
+                        <span class="text-xs font-bold text-amber-500 uppercase tracking-wider py-2">Admin Mode</span>
+                        <a href="/admin/motions" class="text-[10px] font-bold text-amber-400 hover:text-amber-300 bg-amber-900/30 px-3 py-1 rounded border border-amber-700/50 transition-colors uppercase tracking-widest leading-tight text-center mt-1 flex items-center gap-1">🔐 Vault</a>
+                        {% if is_master %}
+                            <a href="/admin/settings" class="text-[10px] font-bold text-slate-300 hover:text-white bg-slate-800 px-3 py-1 rounded border border-slate-700 transition-colors uppercase tracking-widest leading-tight text-center mt-1 flex items-center gap-1">⚙️ Settings</a>
+                            <a href="/admin/users" class="text-[10px] font-bold text-indigo-400 hover:text-indigo-300 bg-indigo-900/30 px-3 py-1 rounded border border-indigo-700/50 transition-colors uppercase tracking-widest leading-tight text-center mt-1">Manage Users</a>
+                            <a href="/admin/audit" class="text-[10px] font-bold text-red-400 hover:text-red-300 bg-red-900/30 px-3 py-1 rounded border border-red-700/50 transition-colors uppercase tracking-widest leading-tight text-center mt-1">Logs</a>
+                        {% endif %}
+                        <a href="/logout" class="text-xs font-bold text-slate-300 hover:text-amber-500 bg-slate-800/50 px-3 py-1 rounded border border-slate-700 transition-colors uppercase tracking-widest mt-1">Logout</a>
+                    {% else %}
+                        <a href="/login" class="text-xs font-bold text-slate-400 hover:text-amber-500 transition-colors uppercase tracking-widest flex items-center gap-1">
+                            Admin Login
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col items-center">
+        <!-- Back Button -->
+        <div class="w-full max-w-7xl mb-6 flex items-center justify-between">
+            <a href="/hall_of_fame" class="text-slate-400 hover:text-amber-400 text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2">
+                ← Back to Gallery
+            </a>
+            <div class="text-[10px] font-mono text-slate-500 bg-slate-800/50 px-3 py-1 rounded border border-slate-700 uppercase tracking-widest">
+                Read-Only Snapshot ({{ archive_meta.date }})
+            </div>
+        </div>
+
+        <!-- Archive Header -->
+        <div class="w-full max-w-7xl mb-10 text-center">
+            <h1 class="text-4xl md:text-5xl font-black font-serif text-white uppercase tracking-widest">
+                <span class="text-amber-500 block mb-2">{{ archive_meta.name }}</span>
+            </h1>
+            <div class="h-1 w-20 bg-amber-500 mx-auto mt-4 rounded-full"></div>
+        </div>
+
+        <!-- Tab Controls -->
+        <div class="w-full max-w-7xl glass rounded-2xl mb-8 flex overflow-hidden p-1 shadow-xl">
+            <button onclick="showTab('standings')" id="standings-btn" class="tab-btn flex-1 py-3 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-white transition-all active">🏆 Standings</button>
+            <button onclick="showTab('bracket')" id="bracket-btn" class="tab-btn flex-1 py-3 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-white transition-all">⚔️ Bracket</button>
+            <button onclick="showTab('matches')" id="matches-btn" class="tab-btn flex-1 py-3 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-white transition-all">📅 Match History</button>
+            <button onclick="showTab('motions')" id="motions-btn" class="tab-btn flex-1 py-3 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-white transition-all">📜 Motions</button>
+        </div>
+
+        <!-- STANDINGS TAB -->
+        <div id="standings-tab" class="tab-content w-full max-w-7xl">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold font-serif text-amber-500 uppercase tracking-widest">Final Standings</h2>
+                <div class="relative w-64">
+                    <input type="text" onkeyup="filterStandings()" id="standingsSearch" placeholder="Search Candidate..." class="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500 transition-colors">
+                </div>
+            </div>
+            <div class="glass rounded-3xl pb-4 overflow-hidden border border-slate-700/50 shadow-2xl">
+                <table class="w-full text-left border-collapse" id="standingsTable">
+                    <thead>
+                        <tr class="bg-slate-800/60 border-b border-slate-700/50 text-slate-400 text-[10px] uppercase tracking-[0.2em]">
+                            <th class="py-4 px-6 font-bold w-16">Rank</th>
+                            <th class="py-4 px-6 font-bold">Candidate Name</th>
+                            <th class="py-4 px-6 font-bold text-center border-l border-slate-700/50 w-24">Win Rate</th>
+                            <th class="py-4 px-6 font-bold text-center border-l border-slate-700/50 w-24">Wins</th>
+                            <th class="py-4 px-6 font-bold text-center border-l border-slate-700/50 w-24">Total Pts</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in candidates %}
+                        <tr class="standings-row border-b border-slate-700/30 font-bold hover:bg-slate-800/40 transition-colors {{ 'bg-amber-900/10' if loop.index <= 16 else '' }}">
+                            <td class="py-4 px-6 text-sm font-mono text-slate-400">#{{ loop.index }}</td>
+                            <td class="py-4 px-6">
+                                <a href="/hall_of_fame/{{ archive_meta.id }}/candidate/{{ row.get('Candidate Name') }}" class="text-slate-200 capitalize tracking-wide block hover:text-amber-500 hover:underline transition-colors">{{ row.get('Candidate Name', 'Unknown') }}</a>
+                                {% if row.get('Alias') %}
+                                <span class="text-[10px] text-amber-600/80">"{{ row.get('Alias') }}"</span>
+                                {% endif %}
+                            </td>
+                            {% set total_m = 6 %}
+                            {% set wins = row.get('WinsNum', 0) %}
+                            {% set win_rate = ((wins / total_m) * 100) | round(1) %}
+                            <td class="py-4 px-6 text-center border-l border-slate-700/50">
+                                <span class="px-2 py-1 rounded bg-slate-900/50 font-mono text-xs {{ 'text-amber-400' if win_rate >= 50 else 'text-slate-300' }}">
+                                    {{ win_rate }}%
+                                </span>
+                            </td>
+                            <td class="py-4 px-6 text-center border-l border-slate-700/50 font-mono text-sm text-green-400">{{ wins }}</td>
+                            <td class="py-4 px-6 text-center border-l border-slate-700/50 font-mono text-sm text-slate-300">{{ row.get('Total Marks', '0.00') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- BRACKET TAB -->
+        <div id="bracket-tab" class="tab-content w-full max-w-7xl hidden">
+            <h2 class="text-xl font-bold font-serif text-amber-500 uppercase tracking-widest mb-8 text-center">Outround Bracket</h2>
+            <div class="glass rounded-3xl p-4 overflow-hidden border border-slate-700/50 shadow-2xl bg-slate-900/30">
+                <div class="bracket-container">
+                    {% set rounds_data = data.get('Rounds', {}) %}
+                    {% for round_name in ['Quarter Finals', 'Semi Finals', 'Grand Final'] %}
+                    <div class="bracket-column">
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center mb-4 border-b border-slate-700/50 pb-2">{{ round_name }}</div>
+                        {% for match in rounds_data.get(round_name, []) %}
+                        <div class="matchup">
+                            <div class="text-[8px] font-mono text-slate-500 uppercase tracking-widest mb-2 border-b border-slate-700/20 pb-1">Archive ID: {{ match.match_id }}</div>
+                            <div class="team-slot {{ 'winner text-amber-400' if match.winner_leader == match.team1_leader else ('loser' if match.winner_leader) }}">
+                                <span class="truncate">{{ match.team1_leader }}</span>
+                            </div>
+                            <div class="vs-divider"></div>
+                            <div class="team-slot {{ 'winner text-amber-400' if match.winner_leader == match.team2_leader else ('loser' if match.winner_leader) }}">
+                                <span class="truncate">{{ match.team2_leader }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% if not rounds_data.get(round_name) %}
+                        <div class="text-slate-600 text-[10px] font-bold uppercase text-center py-20 italic">No matches scheduled</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="mt-10 max-w-3xl mx-auto">
+                <h3 class="text-sm font-bold text-amber-500 uppercase tracking-widest border-b border-slate-700/50 pb-2 mb-4">Outround Champion List</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    {% for row in candidates[:16] %}
+                    <div class="p-3 bg-slate-800/40 rounded-xl border border-slate-700 flex items-center gap-3">
+                        <div class="text-[10px] font-mono text-amber-500 font-black">#{{ loop.index }}</div>
+                        <div class="text-xs font-bold text-white uppercase tracking-wider">{{ row.get('Candidate Name') }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- MATCH HISTORY TAB -->
+        <div id="matches-tab" class="tab-content w-full max-w-7xl hidden">
+            <div class="space-y-12">
+                {% set rounds_data = data.get('Rounds', {}) %}
+                {% for r_name in ['R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'Quarter Finals', 'Semi Finals', 'Grand Final'] %}
+                {% if rounds_data.get(r_name) %}
+                <div>
+                    <h2 class="text-lg font-bold font-serif text-slate-300 uppercase tracking-widest mb-4 border-l-4 border-amber-500 pl-4">{{ r_name }} Matches</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {% for match in rounds_data.get(r_name) %}
+                        <div class="glass rounded-2xl p-5 border border-slate-700/50 relative overflow-hidden group">
+                           
+                            {% if r_name.startswith('R') %}
+                                <!-- Prelim Match Layout -->
+                                <div class="flex flex-col gap-2 relative z-10">
+                                    <div class="flex justify-between items-center text-[10px] font-mono mb-2 border-b border-slate-700 pb-2">
+                                        <span class="text-slate-500 uppercase">Match {{ match.match_id }}</span>
+                                        <span class="text-amber-500 font-black">PRELIM</span>
+                                    </div>
+                                    <div class="flex justify-between items-center {{ 'text-green-400' if match.winner == 'Team 1' else ('text-slate-500' if match.winner) }}">
+                                        <div class="text-xs font-bold uppercase tracking-wider">{{ match.team1|join(', ') }}</div>
+                                        {% if match.winner == 'Team 1' %}<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M5 13.157l4.917 4.917L21 7.157"/></svg>{% endif %}
+                                    </div>
+                                    <div class="text-center py-1 opacity-20 text-[10px] font-black uppercase">VS</div>
+                                    <div class="flex justify-between items-center {{ 'text-green-400' if match.winner == 'Team 2' else ('text-slate-500' if match.winner) }}">
+                                        <div class="text-xs font-bold uppercase tracking-wider">{{ match.team2|join(', ') }}</div>
+                                        {% if match.winner == 'Team 2' %}<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M5 13.157l4.917 4.917L21 7.157"/></svg>{% endif %}
+                                    </div>
+                                    <div class="mt-4 pt-2 border-t border-slate-700/50 flex justify-between">
+                                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Venue: {{ match.venue if match.venue else 'N/A' }}</span>
+                                        <span class="text-[10px] font-black text-amber-600 uppercase">{{ match.status }}</span>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <!-- Outround Match Layout -->
+                                <div class="flex flex-col gap-2 relative z-10">
+                                    <div class="flex justify-between items-center text-[10px] font-mono mb-2 border-b border-slate-700 pb-2">
+                                        <span class="text-slate-500 uppercase">Elimination Match</span>
+                                        <span class="text-indigo-400 font-black">{{ r_name|upper }}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center {{ 'text-green-400' if match.winner_leader == match.team1_leader else ('text-slate-500' if match.winner_leader) }}">
+                                        <div class="text-xs font-bold uppercase tracking-wider">{{ match.team1_leader }}</div>
+                                        {% if match.winner_leader == match.team1_leader %}<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M5 13.157l4.917 4.917L21 7.157"/></svg>{% endif %}
+                                    </div>
+                                    <div class="text-center py-1 opacity-20 text-[10px] font-black uppercase">VS</div>
+                                    <div class="flex justify-between items-center {{ 'text-green-400' if match.winner_leader == match.team2_leader else ('text-slate-500' if match.winner_leader) }}">
+                                        <div class="text-xs font-bold uppercase tracking-wider">{{ match.team2_leader }}</div>
+                                        {% if match.winner_leader == match.team2_leader %}<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M5 13.157l4.917 4.917L21 7.157"/></svg>{% endif %}
+                                    </div>
+                                    <div class="mt-4 pt-2 border-t border-slate-700/50 flex justify-between">
+                                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Venue: {{ match.venue if match.venue else 'N/A' }}</span>
+                                        <span class="text-[10px] font-black text-indigo-500 uppercase">Finalized</span>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- MOTIONS TAB -->
+        <div id="motions-tab" class="tab-content w-full max-w-7xl hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {% set motions_list = data.get('Motions', []) | selectattr("published", "equalto", true) | list %}
+                {% for r_name in ['R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'Octofinals', 'Quarterfinals', 'Semifinals', 'Finals', 'Quarter Finals', 'Semi Finals', 'Grand Final'] %}
+                    {% set round_motions = motions_list | selectattr("round", "equalto", r_name) | list %}
+                    
+                    {% if round_motions %}
+                    <div class="col-span-1 md:col-span-2 mb-2 mt-4">
+                        <h2 class="text-xl font-bold font-serif text-amber-500 uppercase tracking-widest border-l-4 border-amber-500 pl-4 bg-slate-900/50 py-2">{{ r_name }} Motions</h2>
+                    </div>
+                    
+                    {% for m in round_motions %}
+                    <div class="glass rounded-3xl p-8 border border-slate-700/50 shadow-xl relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-3 font-mono text-[10px] text-slate-500 bg-slate-800/60 rounded-bl-xl border-l border-b border-slate-700/50 uppercase tracking-widest">
+                            Archived
+                        </div>
+                        <p class="text-xl md:text-2xl font-serif text-white leading-relaxed italic mt-2">
+                            "{{ m.text }}"
+                        </p>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                {% endfor %}
+                
+                {% if not motions_list %}
+                <div class="col-span-full py-20 text-center border-2 border-dashed border-slate-700/50 rounded-3xl flex flex-col items-center">
+                    <p class="text-slate-500 font-bold uppercase tracking-widest text-sm">No motions recorded in this archive.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName + '-tab').classList.remove('hidden');
+            // Add active class to selected button
+            document.getElementById(tabName + '-btn').classList.add('active');
+        }
+
+        function filterStandings() {
+            let input = document.getElementById("standingsSearch");
+            let filter = input.value.toUpperCase();
+            let rows = document.querySelectorAll(".standings-row");
+            
+            rows.forEach(row => {
+                let name = row.cells[1].innerText.toUpperCase();
+                if (name.indexOf(filter) > -1) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        }
+    </script>
+</body>
+</html>

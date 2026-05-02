@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Crown | Outrounds Bracket</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; 
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,0.2) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,0) 0, transparent 50%);
+        }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #d97706; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #b45309; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999; opacity: 0; pointer-events: none; transition: all 0.3s ease;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-content {
+            transform: scale(0.9); transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .modal-overlay.active .modal-content { transform: scale(1); }
+    </style>
+</head>
+<body class="text-slate-200 min-h-screen flex flex-col py-0 px-0 bg-slate-900 overflow-x-hidden">
+
+    <!-- Hamburger Sidebar -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 w-64 glass z-[100] transform -translate-x-full transition-transform duration-300 shadow-2xl border-r border-slate-700/50 flex flex-col">
+        <div class="p-6 flex justify-between items-center border-b border-slate-700/50 bg-slate-900/50">
+            <span class="text-xl font-bold font-serif text-amber-500 uppercase tracking-widest">Menu</span>
+            <button onclick="toggleSidebar()" class="text-slate-400 hover:text-white transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        <div class="p-6 flex flex-col gap-6 mt-4">
+            {% if is_admin %}
+            <a href="/admin/registration" class="text-blue-400 hover:text-blue-300 text-sm font-bold uppercase tracking-wider transition-colors flex items-center gap-3">
+                📋 Registration
+            </a>
+            <a href="/admin/motions" class="text-amber-500 hover:text-amber-400 text-sm font-bold uppercase tracking-wider transition-colors flex items-center gap-3">
+                🔐 Motions Vault
+            </a>
+            {% endif %}
+            <a href="/timer" class="text-slate-300 hover:text-amber-500 text-sm font-bold uppercase tracking-wider transition-colors flex items-center gap-3">
+                ⏱️ Official Timer
+            </a>
+            <a href="/hall_of_fame" class="text-slate-300 hover:text-amber-500 text-sm font-bold uppercase tracking-wider transition-colors flex items-center gap-3">
+                🏛️ Hall of Fame
+            </a>
+            <a href="/reveal_kiosk" target="_blank" class="text-slate-300 hover:text-amber-500 text-sm font-bold uppercase tracking-wider transition-colors flex items-center gap-3">
+                📽️ Motion Reveal
+            </a>
+        </div>
+    </div>
+    
+    <!-- Sidebar Overlay -->
+    <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-[90] hidden fade-in backdrop-blur-sm"></div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+    </script>
+
+
+    <nav class="bg-slate-900/95 border-b border-amber-600/30 sticky top-0 z-50 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">                <div class="flex items-center space-x-6">
+                    <button onclick="toggleSidebar()" class="text-slate-300 hover:text-white transition-colors ml-2 mr-2 group">
+                        <svg class="w-6 h-6 group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                    <div class="flex-shrink-0 flex items-center gap-2 pr-4 border-r border-slate-700/50">
+                        <svg class="h-8 w-auto text-amber-500 filter drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/>
+                        </svg>
+                        <span class="text-xl font-bold font-serif text-white uppercase tracking-widest">The Crown</span>
+                    </div>
+                    <a href="/" class="text-slate-300 hover:text-white hover:bg-slate-800 px-3 py-2 rounded-md text-sm font-bold uppercase tracking-wider transition-colors">🏆 Leaderboard</a>
+                    <a href="/matches" class="text-amber-500 hover:text-amber-400 px-3 py-2 rounded-md text-sm font-bold uppercase tracking-wider relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-amber-500">⚔️ Matches</a>
+                    <a href="/live" target="_blank" class="text-slate-300 hover:text-amber-500 hover:bg-slate-800 px-3 py-2 rounded-md text-sm font-bold uppercase tracking-wider transition-colors">📡 Live</a>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    {% if is_admin %}
+                        <span class="text-xs font-bold text-amber-500 uppercase tracking-wider py-2">Admin Mode</span>
+                        <a href="/admin/motions" class="text-[10px] font-bold text-amber-400 hover:text-amber-300 bg-amber-900/30 px-3 py-1 rounded border border-amber-700/50 transition-colors uppercase tracking-widest leading-tight text-center mt-1 flex items-center gap-1">🔐 Vault</a>
+                        {% if is_master %}
+                            <a href="/admin/users" class="text-xs font-bold text-indigo-400 hover:text-indigo-300 bg-indigo-900/30 px-3 py-1 rounded border border-indigo-700/50 transition-colors uppercase tracking-widest leading-none flex items-center">Users</a>
+                            <a href="/admin/audit" class="text-xs font-bold text-red-400 hover:text-red-300 bg-red-900/30 px-3 py-1 rounded border border-red-700/50 transition-colors uppercase tracking-widest leading-none flex items-center">Logs</a>
+                        {% endif %}
+                        <a href="/logout" class="text-xs font-bold text-slate-300 hover:text-amber-500 bg-slate-800/50 px-3 py-1 rounded border border-slate-700 transition-colors uppercase tracking-widest">Logout</a>
+                    {% else %}
+                        <a href="/login" class="text-xs font-bold text-slate-400 hover:text-amber-500 transition-colors uppercase tracking-widest flex items-center gap-1">Admin Login</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col items-center">
+        <!-- Messages -->
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="mb-6 w-full max-w-4xl space-y-2">
+            {% for message in messages %}
+              <div class="p-4 text-sm text-green-200 rounded-lg bg-green-900/50 border border-green-500/50 glass font-bold text-center">
+                {{ message }}
+              </div>
+            {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <!-- Admin Control Panel -->
+        <div class="text-center mb-8 w-full mt-4">
+            <h1 class="text-4xl font-bold text-amber-500 font-serif uppercase tracking-widest mb-3">Tournament Matchups</h1>
+            <p class="text-slate-400 font-medium tracking-wide">Administrative matchmaking and team logic for knockouts.</p>
+        </div>
+
+        <div class="flex justify-center space-x-4 mb-10 w-full">
+            <a href="/matches" class="px-6 py-2 bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200 font-bold uppercase tracking-widest rounded border border-slate-700 transition-colors text-sm">Preliminary Matches</a>
+            <a href="/matches/outrounds" class="px-6 py-2 bg-amber-600 text-slate-900 font-bold uppercase tracking-widest rounded shadow-lg text-sm">Knockout Lotteries</a>
+        </div>
+        
+        {% if is_admin %}
+        <div class="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
+            
+            <!-- Team Builder -->
+            <div class="glass shadow-xl rounded-xl p-6 border-t-2 border-slate-500 relative">
+                <h3 class="text-xl font-serif text-slate-300 font-bold mb-4 border-b border-slate-700 pb-2">1. Form Permanent Team</h3>
+                <form action="/admin/create_outround_team" method="post" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Select Qualified Leader</label>
+                        <select name="leader" required class="w-full bg-slate-900 border border-slate-700 rounded-md py-2 px-3 text-sm focus:ring-amber-500">
+                            <option value="">Choose Leader...</option>
+                            {% for cand in available_leaders %}
+                                <option value="{{ cand }}">{{ cand }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-1 gap-2">
+                        {% for i in range(1, 4) %}
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase">Supporter {{i}}</label>
+                            <select name="supporter_{{i}}" class="supporter-select w-full bg-slate-900/50 border border-slate-700 rounded-md py-1.5 px-3 text-sm focus:ring-slate-500">
+                                <option value="">None</option>
+                                {% for cand in available_supporters %}
+                                    <option value="{{ cand }}">{{ cand }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button type="submit" class="w-full py-2 bg-slate-700 hover:bg-slate-600 text-white font-bold uppercase tracking-widest rounded transition">Register Team</button>
+                </form>
+            </div>
+
+
+            <!-- Outround Matchmaker -->
+            <div class="glass shadow-xl rounded-xl p-6 border-t-2 border-amber-500">
+                <h3 class="text-xl font-serif text-amber-500 font-bold mb-4 border-b border-slate-700 pb-2">2. Match Teams (Knockout Lottery)</h3>
+                <form action="/admin/create_outround_match" method="post" class="space-y-4">
+                    <input type="hidden" name="round_name" value="{{ active_outround }}">
+                    <div class="w-full text-center py-2 border border-slate-600 rounded-md bg-slate-800 text-amber-500 font-bold tracking-widest uppercase mb-4 shadow">
+                        Current Phase: {{ active_outround }}
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <div class="w-full">
+                            <label class="block text-xs font-bold text-blue-400 uppercase tracking-widest mb-1">Team 1 Leader</label>
+                            <select name="t1_leader" required class="leader-select w-full bg-slate-900 border border-slate-700 rounded-md py-2 text-sm text-slate-300 focus:ring-blue-500">
+                                <option value="">Draft Team...</option>
+                                {% for leader in eligible_match_leaders %}
+                                    <option value="{{ leader }}">Team {{ leader.split()[-1] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="text-amber-500 font-bold italic mt-5">VS</div>
+                        <div class="w-full">
+                            <label class="block text-xs font-bold text-red-400 uppercase tracking-widest mb-1">Team 2 Leader</label>
+                            <select name="t2_leader" required class="leader-select w-full bg-slate-900 border border-slate-700 rounded-md py-2 text-sm text-slate-300 focus:ring-red-500">
+                                <option value="">Draft Team...</option>
+                                {% for leader in eligible_match_leaders %}
+                                    <option value="{{ leader }}">Team {{ leader.split()[-1] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1 text-center">Assign Debate Room</label>
+                        <select name="room" required class="block w-full py-2 px-4 border border-slate-700 rounded-md bg-slate-900/60 text-white font-bold text-center appearance-none focus:ring-amber-500">
+                            <option value="Main Auditorium">Main Auditorium</option>
+                            <option value="Room 1">Room 1</option>
+                            <option value="Room 2">Room 2</option>
+                            <option value="Room 3">Room 3</option>
+                            <option value="Room 4">Room 4</option>
+                            <option value="Room 5">Room 5</option>
+                            <option value="Room 6">Room 6</option>
+                            <option value="Room 7">Room 7</option>
+                            <option value="Room 8">Room 8</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="w-full py-3 bg-gradient-to-r from-amber-600 to-amber-500 hover:to-amber-400 text-slate-900 font-bold uppercase tracking-widest rounded shadow-lg mt-4">Draw Lottery Match</button>
+                </form>
+
+                <div class="mt-6 pt-6 border-t border-red-900/40">
+                    <button type="button" 
+                            onclick="openResetModal()"
+                            class="w-full flex items-center justify-center gap-2 py-3 bg-red-900/40 hover:bg-red-800 text-red-200 text-xs font-bold uppercase tracking-widest rounded-lg transition-all border border-red-700 shadow-lg">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        Clear Outrounds History & Teams
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Registered Teams Table -->
+            <div class="glass shadow-xl rounded-xl p-6 border-t-2 border-slate-700 flex flex-col max-h-[350px]">
+                <h3 class="text-xl font-serif text-slate-300 font-bold mb-4 border-b border-slate-700 pb-2">Registered Teams</h3>
+                <div class="overflow-y-auto flex-1 pr-2 space-y-3">
+                    {% if not teams %}
+                        <p class="text-slate-500 text-sm italic text-center mt-4">No permanent teams formed yet.</p>
+                    {% endif %}
+                    {% for leader, details in teams.items() %}
+                        <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50 flex justify-between items-center group">
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-200">Team {{ leader.split()[-1] }}</h4>
+                                <p class="text-[10px] text-slate-400 mt-1">L: {{ leader }}</p>
+                                <p class="text-[10px] text-slate-500">S: {{ details.Supporters | join(', ') if details.Supporters else 'None' }}</p>
+                            </div>
+                            <form action="/admin/disband_outround_team" method="post" onsubmit="return confirm('Disband this team? The leader and supporters will be returned to the pool.');">
+                                <input type="hidden" name="leader" value="{{ leader }}">
+                                <button type="submit" class="bg-red-900/30 text-red-400 hover:bg-red-500 hover:text-white px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest transition-colors opacity-0 group-hover:opacity-100">
+                                    Disband
+                                </button>
+                            </form>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+
+        <!-- Graphical Bracket Interface -->
+        <div class="w-full max-w-7xl">
+            <h1 class="text-4xl font-bold text-white font-serif uppercase tracking-widest mb-8 text-center drop-shadow-lg">Outrounds Lottery Bracket</h1>
+
+            {% set outround_order = ['Octofinals', 'Quarterfinals', 'Semifinals', 'Finals'] %}
+            
+            <div class="space-y-16">
+                {% for stage in outround_order %}
+                    {% if stage in outround_matches and outround_matches[stage]|length > 0 %}
+                    <div class="relative">
+                        <!-- Stage Header -->
+                        <div class="sticky top-16 z-30 bg-slate-900/90 backdrop-blur pb-2 mb-6 border-b border-amber-600/30">
+                            <h2 class="text-2xl font-bold text-amber-500 font-serif uppercase tracking-widest pl-4 border-l-4 border-amber-500">{{ stage }}</h2>
+                        </div>
+
+                        <!-- Matches Lottery Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {% for match in outround_matches[stage] %}
+                            
+                            <div class="glass rounded-xl p-5 border-t-2 relative overflow-hidden {% if match.winner_leader == match.team1_leader %}border-t-blue-500{% elif match.winner_leader == match.team2_leader %}border-t-red-500{% else %}border-t-slate-600{% endif %} hover:-translate-y-1 transition-transform">
+                                
+                                {% if is_admin %}
+                                <div class="absolute top-0 right-0 p-2 z-20 flex gap-1">
+                                    {% if match.status == 'Pending' %}
+                                        <a href="/admin/score_outround/{{ match.id }}" class="bg-amber-600 hover:bg-amber-500 text-xs font-bold px-2 py-1 rounded text-white shadow">Score</a>
+                                    {% else %}
+                                        <form action="/admin/reset_match/{{ match.id }}" method="post" onsubmit="return confirm('Completely eradicate these scores and revert the match to a Pending state? (Requires subsequent rounds to be empty)');">
+                                            <button type="submit" class="bg-red-900/80 hover:bg-red-500 border border-red-500/50 text-[10px] font-bold px-2 py-1 rounded text-white shadow uppercase tracking-widest transition-colors" title="Erase Scores & Revert Match">Undo</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+
+                                <!-- Team 1 Block -->
+                                <div class="p-3 mb-2 rounded bg-slate-900/80 border {% if match.winner_leader == match.team1_leader %}border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.2)]{% else %}border-slate-800 opacity-70{% endif %}">
+                                    <div class="flex justify-between items-center">
+                                        <div class="font-bold text-sm text-white">Team {{ match.team1_leader.split()[-1] }}</div>
+                                        <div class="text-xs font-bold {% if match.winner_leader == match.team1_leader %}text-blue-400{% else %}text-slate-500{% endif %}">
+                                            {{ match.t1_marks if match.status == "Completed" else "--" }}
+                                        </div>
+                                    </div>
+                                    <div class="text-[10px] text-slate-500 truncate mt-1">L: {{ match.team1_leader }}</div>
+                                </div>
+
+                                <div class="text-center font-black text-slate-600 text-[10px] mb-2 uppercase">Lottery VS</div>
+
+                                <!-- Team 2 Block -->
+                                <div class="p-3 rounded bg-slate-900/80 border {% if match.winner_leader == match.team2_leader %}border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.2)]{% else %}border-slate-800 opacity-70{% endif %}">
+                                    <div class="flex justify-between items-center">
+                                        <div class="font-bold text-sm text-white">Team {{ match.team2_leader.split()[-1] }}</div>
+                                        <div class="text-xs font-bold {% if match.winner_leader == match.team2_leader %}text-red-400{% else %}text-slate-500{% endif %}">
+                                            {{ match.t2_marks if match.status == "Completed" else "--" }}
+                                        </div>
+                                    </div>
+                                    <div class="text-[10px] text-slate-500 truncate mt-1">L: {{ match.team2_leader }}</div>
+                                </div>
+
+                                <div class="mt-4 pt-4 border-t border-slate-700/50 flex justify-end">
+                                    <a href="/match_poster/{{ match.id }}" target="_blank" class="bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg shadow shadow-indigo-900/50 uppercase tracking-widest flex items-center justify-center gap-2 transition-colors border border-indigo-500 w-full block text-center">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                        VS Poster
+                                    </a>
+                                </div>
+
+                            </div>
+                            
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            
+            {% if not outround_matches %}
+            <div class="text-center py-20 bg-slate-800/30 rounded-2xl border border-slate-700/30 max-w-2xl mx-auto mt-10">
+                <h3 class="text-xl font-serif text-slate-400 mb-2">Awaiting Outrounds</h3>
+                <p class="text-slate-500">The preliminary rounds must conclude before the elimination lotteries are drawn.</p>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+    <script>
+        // Supporter dropdown filtering
+        const supporterSelects = document.querySelectorAll('.supporter-select');
+        function updateSupporters() {
+            const selected = Array.from(supporterSelects).map(s => s.value).filter(v => v);
+            supporterSelects.forEach(select => {
+                const currentValue = select.value;
+                Array.from(select.options).forEach(opt => {
+                    if (opt.value && opt.value !== currentValue && selected.includes(opt.value)) {
+                        opt.disabled = true;
+                    } else {
+                        opt.disabled = false;
+                    }
+                });
+            });
+        }
+        supporterSelects.forEach(select => select.addEventListener('change', updateSupporters));
+    
+        // Leader dropdown filtering
+        const leaderSelects = document.querySelectorAll('.leader-select');
+        function updateLeaders() {
+            const selected = Array.from(leaderSelects).map(s => s.value).filter(v => v);
+            leaderSelects.forEach(select => {
+                const currentValue = select.value;
+                Array.from(select.options).forEach(opt => {
+                    if (opt.value && opt.value !== currentValue && selected.includes(opt.value)) {
+                        opt.disabled = true;
+                    } else {
+                        opt.disabled = false;
+                    }
+                });
+            });
+        }
+        leaderSelects.forEach(select => select.addEventListener('change', updateLeaders));
+    </script>
+    <!-- Custom Reset Modal -->
+    <div id="resetModal" class="modal-overlay">
+        <div class="modal-content glass max-w-md w-full p-8 rounded-3xl border-2 border-red-500/30 shadow-[0_0_50px_rgba(239,68,68,0.2)] text-center">
+            <div class="w-20 h-20 bg-red-900/30 border-2 border-red-500/50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+            <h3 class="text-2xl font-serif text-white font-bold mb-4 uppercase tracking-wider">Dangerous Action</h3>
+            <p class="text-slate-400 text-sm mb-8 leading-relaxed">
+                Are you sure you want to completely wipe all scheduled outround matches, knock-out badges, and disband all permanent teams? 
+                <span class="text-red-400 font-bold block mt-2">Preliminary matches and general roster will remain intact.</span>
+            </p>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="closeResetModal()" class="py-3 px-6 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition-all border border-slate-600">Cancel</button>
+                <a href="/admin/reset_outrounds_history" class="py-3 px-6 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl transition-all shadow-[0_0_20px_rgba(239,68,68,0.4)] flex items-center justify-center">YES, RESET</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openResetModal() {
+            document.getElementById('resetModal').classList.add('active');
+        }
+        function closeResetModal() {
+            document.getElementById('resetModal').classList.remove('active');
+        }
+    </script>
+</body>
+</html>

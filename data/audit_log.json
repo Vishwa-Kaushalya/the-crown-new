@@ -1,0 +1,926 @@
+[
+    {
+        "id": "61732a15",
+        "timestamp": "2026-04-14 17:27:13",
+        "admin_name": "master",
+        "category": "MATCH_CREATED",
+        "details": "Created outround match in Octofinals"
+    },
+    {
+        "id": "bb0ffd8e",
+        "timestamp": "2026-04-14 12:08:23",
+        "admin_name": "master",
+        "category": "TOURNAMENT_ACTIVATED",
+        "details": "Switched active tournament to \"Default Tournament\""
+    },
+    {
+        "id": "98732648",
+        "timestamp": "2026-04-14 12:08:14",
+        "admin_name": "master",
+        "category": "TOURNAMENT_ACTIVATED",
+        "details": "Switched active tournament to \"the crown season 2\""
+    },
+    {
+        "id": "d95febc2",
+        "timestamp": "2026-04-14 12:08:06",
+        "admin_name": "master",
+        "category": "TOURNAMENT_CREATED",
+        "details": "Created new tournament workspace: \"the crown season 2\""
+    },
+    {
+        "id": "2aecbc39",
+        "timestamp": "2026-04-12 20:08:19",
+        "admin_name": "master",
+        "category": "MATCH_CREATED",
+        "details": "Created preliminary match"
+    },
+    {
+        "id": "b7d8eae1",
+        "timestamp": "2026-04-12 19:46:48",
+        "admin_name": "master",
+        "category": "CANDIDATE_REGISTERED",
+        "details": "Registered new candidate: 556"
+    },
+    {
+        "id": "974c6220",
+        "timestamp": "2026-04-12 19:46:00",
+        "admin_name": "master",
+        "category": "CANDIDATE_REGISTERED",
+        "details": "Registered new candidate: 45"
+    },
+    {
+        "id": "88325dd7",
+        "timestamp": "2026-04-12 19:39:16",
+        "admin_name": "master",
+        "category": "CANDIDATE_REGISTERED",
+        "details": "Registered new candidate: 24"
+    },
+    {
+        "id": "df26fccc",
+        "timestamp": "2026-04-12 19:38:58",
+        "admin_name": "master",
+        "category": "CANDIDATE_REGISTERED",
+        "details": "Registered new candidate: 2"
+    },
+    {
+        "id": "e57cb526",
+        "timestamp": "2026-04-12 19:38:41",
+        "admin_name": "master",
+        "category": "CANDIDATE_REGISTERED",
+        "details": "Registered new candidate: 1"
+    },
+    {
+        "id": "91e2b8cc",
+        "timestamp": "2026-04-12 00:34:32",
+        "admin_name": "admin",
+        "category": "REVEAL_TRIGGERED",
+        "details": "Fired public broadcast reveal for motion 00077ddd"
+    },
+    {
+        "id": "3da44368",
+        "timestamp": "2026-04-12 00:33:57",
+        "admin_name": "admin",
+        "category": "REVEAL_CLEARED",
+        "details": "Cleared public broadcast reveal screen"
+    },
+    {
+        "id": "884968e9",
+        "timestamp": "2026-04-12 00:32:54",
+        "admin_name": "admin",
+        "category": "REVEAL_TRIGGERED",
+        "details": "Fired public broadcast reveal for motion 00077ddd"
+    },
+    {
+        "id": "95127bc3",
+        "timestamp": "2026-04-12 00:32:52",
+        "admin_name": "admin",
+        "category": "REVEAL_CLEARED",
+        "details": "Cleared public broadcast reveal screen"
+    },
+    {
+        "id": "864743d9",
+        "timestamp": "2026-04-12 00:31:49",
+        "admin_name": "master",
+        "category": "REVEAL_TRIGGERED",
+        "details": "Fired public broadcast reveal for motion 00077ddd"
+    },
+    {
+        "id": "31f3d2aa",
+        "timestamp": "2026-04-12 00:31:05",
+        "admin_name": "master",
+        "category": "REVEAL_CLEARED",
+        "details": "Cleared public broadcast reveal screen"
+    },
+    {
+        "id": "e5ed2310",
+        "timestamp": "2026-04-12 00:30:42",
+        "admin_name": "master",
+        "category": "REVEAL_TRIGGERED",
+        "details": "Fired public broadcast reveal for motion 00077ddd"
+    },
+    {
+        "id": "54809a96",
+        "timestamp": "2026-04-12 00:28:09",
+        "admin_name": "master",
+        "category": "REVEAL_TRIGGERED",
+        "details": "Fired public broadcast reveal for motion 00077ddd"
+    },
+    {
+        "id": "a6be32f2",
+        "timestamp": "2026-04-12 00:27:52",
+        "admin_name": "admin",
+        "category": "REVEAL_TRIGGERED",
+        "details": "Fired public broadcast reveal for motion 00077ddd"
+    },
+    {
+        "id": "3e0e514e",
+        "timestamp": "2026-04-12 00:27:46",
+        "admin_name": "admin",
+        "category": "REVEAL_TRIGGERED",
+        "details": "Fired public broadcast reveal for motion 00077ddd"
+    },
+    {
+        "id": "6a223bf1",
+        "timestamp": "2026-04-12 00:24:27",
+        "admin_name": "master",
+        "category": "REVEAL_TRIGGERED",
+        "details": "Fired public broadcast reveal for motion 00077ddd"
+    },
+    {
+        "id": "d95eb866",
+        "timestamp": "2026-04-12 00:18:36",
+        "admin_name": "master",
+        "category": "MOTION_PUBLISHED",
+        "details": "Changed motion 00077ddd to published"
+    },
+    {
+        "id": "538ca9d4",
+        "timestamp": "2026-04-12 00:18:34",
+        "admin_name": "master",
+        "category": "MOTION_DRAFTED",
+        "details": "Drafted motion for R1"
+    },
+    {
+        "id": "9d71a5b8",
+        "timestamp": "2026-04-12 00:10:36",
+        "admin_name": "master",
+        "category": "SYSTEM_ADMIN",
+        "details": "Added admin admin"
+    },
+    {
+        "id": "bc61b363",
+        "timestamp": "2026-04-12 00:10:28",
+        "admin_name": "master",
+        "category": "SYSTEM_ADMIN",
+        "details": "Removed admin admin prime"
+    },
+    {
+        "id": "f6d4f731",
+        "timestamp": "2026-04-12 00:10:26",
+        "admin_name": "master",
+        "category": "SYSTEM_ADMIN",
+        "details": "Removed admin admin1"
+    },
+    {
+        "id": "531dd903",
+        "timestamp": "2026-04-11 23:53:09",
+        "admin_name": "master",
+        "category": "ARCHIVE_DELETED",
+        "details": "Deleted archive 3f5547cd"
+    },
+    {
+        "id": "2979e91f",
+        "timestamp": "2026-04-11 23:53:06",
+        "admin_name": "master",
+        "category": "ARCHIVE_DELETED",
+        "details": "Deleted archive bcd4513a"
+    },
+    {
+        "id": "f1ddaced",
+        "timestamp": "2026-04-11 23:52:51",
+        "admin_name": "master",
+        "category": "RESET",
+        "details": "Factory reset database following archiving"
+    },
+    {
+        "id": "05208672",
+        "timestamp": "2026-04-11 23:52:51",
+        "admin_name": "master",
+        "category": "ARCHIVE_CREATED",
+        "details": "Archived current tournament as \"motions\""
+    },
+    {
+        "id": "401cc6af",
+        "timestamp": "2026-04-11 23:52:44",
+        "admin_name": "master",
+        "category": "ARCHIVE_DELETED",
+        "details": "Deleted archive f7935f40"
+    },
+    {
+        "id": "bd9a8d18",
+        "timestamp": "2026-04-11 23:52:31",
+        "admin_name": "master",
+        "category": "MOTION_PUBLISHED",
+        "details": "Changed motion 0ced558f to published"
+    },
+    {
+        "id": "7211bce3",
+        "timestamp": "2026-04-11 23:52:29",
+        "admin_name": "master",
+        "category": "MOTION_PUBLISHED",
+        "details": "Changed motion c8c626b8 to published"
+    },
+    {
+        "id": "34c0aa50",
+        "timestamp": "2026-04-11 23:52:19",
+        "admin_name": "master",
+        "category": "MOTION_PUBLISHED",
+        "details": "Changed motion 4893c17b to published"
+    },
+    {
+        "id": "2d355bef",
+        "timestamp": "2026-04-11 23:52:17",
+        "admin_name": "master",
+        "category": "MOTION_PUBLISHED",
+        "details": "Changed motion 72205602 to published"
+    },
+    {
+        "id": "69731258",
+        "timestamp": "2026-04-11 23:52:15",
+        "admin_name": "master",
+        "category": "MOTION_PUBLISHED",
+        "details": "Changed motion a3da8c31 to published"
+    },
+    {
+        "id": "0afeb61a",
+        "timestamp": "2026-04-11 23:52:13",
+        "admin_name": "master",
+        "category": "MOTION_PUBLISHED",
+        "details": "Changed motion d389df67 to published"
+    },
+    {
+        "id": "16ca25e4",
+        "timestamp": "2026-04-11 23:52:11",
+        "admin_name": "master",
+        "category": "MOTION_PUBLISHED",
+        "details": "Changed motion 4872fd55 to published"
+    },
+    {
+        "id": "eb85bfee",
+        "timestamp": "2026-04-11 23:52:09",
+        "admin_name": "master",
+        "category": "MOTION_PUBLISHED",
+        "details": "Changed motion 67d59235 to published"
+    },
+    {
+        "id": "0d682a29",
+        "timestamp": "2026-04-11 23:52:07",
+        "admin_name": "master",
+        "category": "MOTION_PUBLISHED",
+        "details": "Changed motion de0fde98 to published"
+    },
+    {
+        "id": "5929f34b",
+        "timestamp": "2026-04-11 23:52:06",
+        "admin_name": "master",
+        "category": "MOTION_PUBLISHED",
+        "details": "Changed motion 01dc2ab1 to published"
+    },
+    {
+        "id": "dbe31b8e",
+        "timestamp": "2026-04-11 23:52:05",
+        "admin_name": "master",
+        "category": "MOTION_DRAFTED",
+        "details": "Drafted motion for Finals"
+    },
+    {
+        "id": "edfe48d3",
+        "timestamp": "2026-04-11 23:52:01",
+        "admin_name": "master",
+        "category": "MOTION_DRAFTED",
+        "details": "Drafted motion for Semifinals"
+    },
+    {
+        "id": "0e47d4cc",
+        "timestamp": "2026-04-11 23:51:56",
+        "admin_name": "master",
+        "category": "MOTION_DRAFTED",
+        "details": "Drafted motion for Quarterfinals"
+    },
+    {
+        "id": "be89875a",
+        "timestamp": "2026-04-11 23:51:52",
+        "admin_name": "master",
+        "category": "MOTION_DRAFTED",
+        "details": "Drafted motion for Octofinals"
+    },
+    {
+        "id": "ec51db72",
+        "timestamp": "2026-04-11 23:51:45",
+        "admin_name": "master",
+        "category": "MOTION_DRAFTED",
+        "details": "Drafted motion for R6"
+    },
+    {
+        "id": "ceb4f818",
+        "timestamp": "2026-04-11 23:51:41",
+        "admin_name": "master",
+        "category": "MOTION_DRAFTED",
+        "details": "Drafted motion for R5"
+    },
+    {
+        "id": "0c86b2c3",
+        "timestamp": "2026-04-11 23:51:36",
+        "admin_name": "master",
+        "category": "MOTION_DRAFTED",
+        "details": "Drafted motion for R4"
+    },
+    {
+        "id": "e9210860",
+        "timestamp": "2026-04-11 23:51:31",
+        "admin_name": "master",
+        "category": "MOTION_DRAFTED",
+        "details": "Drafted motion for R3"
+    },
+    {
+        "id": "3d416775",
+        "timestamp": "2026-04-11 23:51:23",
+        "admin_name": "master",
+        "category": "MOTION_DRAFTED",
+        "details": "Drafted motion for R2"
+    },
+    {
+        "id": "4d5cfde3",
+        "timestamp": "2026-04-11 23:51:19",
+        "admin_name": "master",
+        "category": "MOTION_DRAFTED",
+        "details": "Drafted motion for R1"
+    },
+    {
+        "id": "e3719ffa",
+        "timestamp": "2026-04-11 23:50:48",
+        "admin_name": "master",
+        "category": "RESET",
+        "details": "Factory reset database following archiving"
+    },
+    {
+        "id": "920c1831",
+        "timestamp": "2026-04-11 23:50:48",
+        "admin_name": "master",
+        "category": "ARCHIVE_CREATED",
+        "details": "Archived current tournament as \"motions\""
+    },
+    {
+        "id": "04d24706",
+        "timestamp": "2026-04-11 23:50:24",
+        "admin_name": "master",
+        "category": "MOTION_DRAFTED",
+        "details": "Drafted motion for Finals"
+    },
+    {
+        "id": "236fd8f1",
+        "timestamp": "2026-04-11 23:50:09",
+        "admin_name": "master",
+        "category": "MOTION_DRAFTED",
+        "details": "Drafted motion for Semifinals"
+    },
+    {
+        "id": "b194dd11",
+        "timestamp": "2026-04-11 23:50:00",
+        "admin_name": "master",
+        "category": "MOTION_DRAFTED",
+        "details": "Drafted motion for Quarterfinals"
+    },
+    {
+        "id": "69c44ff4",
+        "timestamp": "2026-04-11 23:49:54",
+        "admin_name": "master",
+        "category": "MOTION_DRAFTED",
+        "details": "Drafted motion for Octofinals"
+    },
+    {
+        "id": "30c1af73",
+        "timestamp": "2026-04-11 23:49:47",
+        "admin_name": "master",
+        "category": "MOTION_DRAFTED",
+        "details": "Drafted motion for R6"
+    },
+    {
+        "id": "1d63879e",
+        "timestamp": "2026-04-11 23:49:36",
+        "admin_name": "master",
+        "category": "MOTION_DRAFTED",
+        "details": "Drafted motion for R5"
+    },
+    {
+        "id": "afd35cc0",
+        "timestamp": "2026-04-11 23:49:29",
+        "admin_name": "master",
+        "category": "MOTION_DRAFTED",
+        "details": "Drafted motion for R4"
+    },
+    {
+        "id": "08de3949",
+        "timestamp": "2026-04-11 23:49:23",
+        "admin_name": "master",
+        "category": "MOTION_DRAFTED",
+        "details": "Drafted motion for R3"
+    },
+    {
+        "id": "3f9769ba",
+        "timestamp": "2026-04-11 23:49:12",
+        "admin_name": "master",
+        "category": "MOTION_DRAFTED",
+        "details": "Drafted motion for R2"
+    },
+    {
+        "id": "3d8f4901",
+        "timestamp": "2026-04-11 23:49:07",
+        "admin_name": "master",
+        "category": "MOTION_DRAFTED",
+        "details": "Drafted motion for R1"
+    },
+    {
+        "id": "8add5374",
+        "timestamp": "2026-04-11 23:44:29",
+        "admin_name": "master",
+        "category": "RESET",
+        "details": "Factory reset database following archiving"
+    },
+    {
+        "id": "7d2eeb20",
+        "timestamp": "2026-04-11 23:44:29",
+        "admin_name": "master",
+        "category": "ARCHIVE_CREATED",
+        "details": "Archived current tournament as \"the crown season 1\""
+    },
+    {
+        "id": "a6179156",
+        "timestamp": "2026-04-11 23:44:22",
+        "admin_name": "master",
+        "category": "ARCHIVE_DELETED",
+        "details": "Deleted archive e22c56d2"
+    },
+    {
+        "id": "2e7eade8",
+        "timestamp": "2026-04-11 23:43:40",
+        "admin_name": "master",
+        "category": "MATCH_CREATED",
+        "details": "Created preliminary match"
+    },
+    {
+        "id": "801b6d04",
+        "timestamp": "2026-04-11 23:43:33",
+        "admin_name": "master",
+        "category": "MATCH_SUBMITTED",
+        "details": "Submitted score for prelim match 39d8aa31"
+    },
+    {
+        "id": "97e56fdd",
+        "timestamp": "2026-04-11 21:10:56",
+        "admin_name": "master",
+        "category": "MATCH_CREATED",
+        "details": "Created outround match in Octofinals"
+    },
+    {
+        "id": "72fc1666",
+        "timestamp": "2026-04-11 21:10:40",
+        "admin_name": "master",
+        "category": "MATCH_CREATED",
+        "details": "Created outround match in Octofinals"
+    },
+    {
+        "id": "9257b863",
+        "timestamp": "2026-04-11 21:05:51",
+        "admin_name": "master",
+        "category": "MATCH_CREATED",
+        "details": "Created preliminary match"
+    },
+    {
+        "id": "d8749daa",
+        "timestamp": "2026-04-11 20:53:58",
+        "admin_name": "master",
+        "category": "MATCH_CREATED",
+        "details": "Created outround match in Octofinals"
+    },
+    {
+        "id": "ec88c9dc",
+        "timestamp": "2026-04-11 20:34:53",
+        "admin_name": "master",
+        "category": "RESET",
+        "details": "Wiped outrounds history"
+    },
+    {
+        "id": "d044f4e0",
+        "timestamp": "2026-04-11 18:47:27",
+        "admin_name": "master",
+        "category": "AVATAR_UPLOAD",
+        "details": "Uploaded cropped profile picture for gimhan sir"
+    },
+    {
+        "id": "5e350438",
+        "timestamp": "2026-04-11 18:46:51",
+        "admin_name": "master",
+        "category": "CANDIDATE_REGISTERED",
+        "details": "Registered new candidate: gimhan sir"
+    },
+    {
+        "id": "9afd595f",
+        "timestamp": "2026-04-11 18:46:06",
+        "admin_name": "master",
+        "category": "AVATAR_UPLOAD",
+        "details": "Uploaded cropped profile picture for 2"
+    },
+    {
+        "id": "87d03331",
+        "timestamp": "2026-04-11 18:45:48",
+        "admin_name": "master",
+        "category": "AVATAR_UPLOAD",
+        "details": "Uploaded cropped profile picture for 1"
+    },
+    {
+        "id": "40d1b2fe",
+        "timestamp": "2026-04-11 18:44:50",
+        "admin_name": "master",
+        "category": "AVATAR_UPLOAD",
+        "details": "Uploaded cropped profile picture for 3"
+    },
+    {
+        "id": "c4707b85",
+        "timestamp": "2026-04-11 16:12:28",
+        "admin_name": "master",
+        "category": "MATCH_CREATED",
+        "details": "Created outround match in Semifinals"
+    },
+    {
+        "id": "2a54c051",
+        "timestamp": "2026-04-11 16:12:19",
+        "admin_name": "master",
+        "category": "MATCH_SUBMITTED",
+        "details": "Submitted score for outround match d3b2a6bc"
+    },
+    {
+        "id": "a7e732ef",
+        "timestamp": "2026-04-11 16:12:09",
+        "admin_name": "master",
+        "category": "MATCH_SUBMITTED",
+        "details": "Submitted score for outround match 2ba26063"
+    },
+    {
+        "id": "78f06795",
+        "timestamp": "2026-04-11 16:11:59",
+        "admin_name": "master",
+        "category": "MATCH_SUBMITTED",
+        "details": "Submitted score for outround match 62287b2f"
+    },
+    {
+        "id": "97b80a97",
+        "timestamp": "2026-04-11 16:11:50",
+        "admin_name": "master",
+        "category": "MATCH_SUBMITTED",
+        "details": "Submitted score for outround match 77182b3b"
+    },
+    {
+        "id": "e509bed3",
+        "timestamp": "2026-04-11 15:56:17",
+        "admin_name": "master",
+        "category": "MATCH_CREATED",
+        "details": "Created outround match in Quarterfinals"
+    },
+    {
+        "id": "6a54e1db",
+        "timestamp": "2026-04-11 15:56:14",
+        "admin_name": "master",
+        "category": "MATCH_CREATED",
+        "details": "Created outround match in Quarterfinals"
+    },
+    {
+        "id": "bc31f09a",
+        "timestamp": "2026-04-11 15:56:11",
+        "admin_name": "master",
+        "category": "MATCH_CREATED",
+        "details": "Created outround match in Quarterfinals"
+    },
+    {
+        "id": "9a819230",
+        "timestamp": "2026-04-11 15:56:07",
+        "admin_name": "master",
+        "category": "MATCH_CREATED",
+        "details": "Created outround match in Quarterfinals"
+    },
+    {
+        "id": "3fdf930a",
+        "timestamp": "2026-04-11 15:55:45",
+        "admin_name": "master",
+        "category": "MATCH_SUBMITTED",
+        "details": "Submitted score for outround match 508a9e8d"
+    },
+    {
+        "id": "8bc3b642",
+        "timestamp": "2026-04-11 15:55:36",
+        "admin_name": "master",
+        "category": "MATCH_SUBMITTED",
+        "details": "Submitted score for outround match 18fd20b4"
+    },
+    {
+        "id": "bb65c842",
+        "timestamp": "2026-04-11 15:55:29",
+        "admin_name": "master",
+        "category": "MATCH_SUBMITTED",
+        "details": "Submitted score for outround match 7eeb4d51"
+    },
+    {
+        "id": "86d2b60b",
+        "timestamp": "2026-04-11 15:55:21",
+        "admin_name": "master",
+        "category": "MATCH_SUBMITTED",
+        "details": "Submitted score for outround match 9ec500d4"
+    },
+    {
+        "id": "bdc3db79",
+        "timestamp": "2026-04-11 15:55:15",
+        "admin_name": "master",
+        "category": "MATCH_SUBMITTED",
+        "details": "Submitted score for outround match 3c0666b6"
+    },
+    {
+        "id": "248b6fca",
+        "timestamp": "2026-04-11 15:55:09",
+        "admin_name": "master",
+        "category": "MATCH_SUBMITTED",
+        "details": "Submitted score for outround match 635a2178"
+    },
+    {
+        "id": "c4c9fb46",
+        "timestamp": "2026-04-11 15:55:00",
+        "admin_name": "master",
+        "category": "MATCH_SUBMITTED",
+        "details": "Submitted score for outround match 4b11c950"
+    },
+    {
+        "id": "27f32bd3",
+        "timestamp": "2026-04-11 15:54:52",
+        "admin_name": "master",
+        "category": "MATCH_SUBMITTED",
+        "details": "Submitted score for outround match 82703069"
+    },
+    {
+        "id": "77430f7e",
+        "timestamp": "2026-04-11 15:54:46",
+        "admin_name": "master",
+        "category": "MATCH_CREATED",
+        "details": "Created outround match in Octofinals"
+    },
+    {
+        "id": "87bd3c93",
+        "timestamp": "2026-04-11 15:53:59",
+        "admin_name": "master",
+        "category": "MATCH_CREATED",
+        "details": "Created outround match in Octofinals"
+    },
+    {
+        "id": "e49cd45e",
+        "timestamp": "2026-04-11 15:53:56",
+        "admin_name": "master",
+        "category": "MATCH_CREATED",
+        "details": "Created outround match in Octofinals"
+    },
+    {
+        "id": "2adb47fc",
+        "timestamp": "2026-04-11 15:53:51",
+        "admin_name": "master",
+        "category": "MATCH_CREATED",
+        "details": "Created outround match in Octofinals"
+    },
+    {
+        "id": "354712c8",
+        "timestamp": "2026-04-11 15:53:47",
+        "admin_name": "master",
+        "category": "MATCH_CREATED",
+        "details": "Created outround match in Octofinals"
+    },
+    {
+        "id": "2d6f8c6d",
+        "timestamp": "2026-04-11 15:53:43",
+        "admin_name": "master",
+        "category": "MATCH_CREATED",
+        "details": "Created outround match in Octofinals"
+    },
+    {
+        "id": "de5c2b42",
+        "timestamp": "2026-04-11 15:53:39",
+        "admin_name": "master",
+        "category": "MATCH_CREATED",
+        "details": "Created outround match in Octofinals"
+    },
+    {
+        "id": "f5e39444",
+        "timestamp": "2026-04-07 17:40:54",
+        "admin_name": "master",
+        "category": "MOTION_PUBLISHED",
+        "details": "Changed motion 3c500345 to published"
+    },
+    {
+        "id": "f163d113",
+        "timestamp": "2026-04-06 04:51:59",
+        "admin_name": "master",
+        "category": "MATCH_CREATED",
+        "details": "Created outround match in Octofinals"
+    },
+    {
+        "id": "97a0f3c9",
+        "timestamp": "2026-04-06 00:47:02",
+        "admin_name": "master",
+        "category": "SYSTEM_ADMIN",
+        "details": "Added admin admin"
+    },
+    {
+        "id": "b6c6f606",
+        "timestamp": "2026-04-06 00:46:56",
+        "admin_name": "master",
+        "category": "SYSTEM_ADMIN",
+        "details": "Removed admin admin1"
+    },
+    {
+        "id": "cc8b8eee",
+        "timestamp": "2026-04-06 00:46:51",
+        "admin_name": "master",
+        "category": "SYSTEM_ADMIN",
+        "details": "Removed admin admin prime"
+    },
+    {
+        "id": "89b1e432",
+        "timestamp": "2026-04-06 00:46:47",
+        "admin_name": "master",
+        "category": "SYSTEM_ADMIN",
+        "details": "Removed admin google"
+    },
+    {
+        "id": "494f954f",
+        "timestamp": "2026-04-06 00:38:53",
+        "admin_name": "master",
+        "category": "MOTION_DRAFTED",
+        "details": "Drafted motion for R1"
+    },
+    {
+        "id": "813fec2f",
+        "timestamp": "2026-04-06 00:14:31",
+        "admin_name": "master",
+        "category": "MOTION_REVEALED",
+        "details": "Changed motion 69ba4cb6 to revealed to public"
+    },
+    {
+        "id": "a8532ba6",
+        "timestamp": "2026-04-06 00:05:09",
+        "admin_name": "master",
+        "category": "MOTION_PUBLISHED",
+        "details": "Changed motion 69ba4cb6 to published"
+    },
+    {
+        "id": "b8bf4753",
+        "timestamp": "2026-04-06 00:05:07",
+        "admin_name": "master",
+        "category": "MOTION_DRAFTED",
+        "details": "Drafted motion for R1"
+    },
+    {
+        "id": "22bb77ba",
+        "timestamp": "2026-04-05 23:44:31",
+        "admin_name": "master",
+        "category": "RESET",
+        "details": "Factory reset database following archiving"
+    },
+    {
+        "id": "78a0f7cb",
+        "timestamp": "2026-04-05 23:44:31",
+        "admin_name": "master",
+        "category": "ARCHIVE_CREATED",
+        "details": "Archived current tournament as \"the crown season 1\""
+    },
+    {
+        "id": "07b398f4",
+        "timestamp": "2026-04-05 23:33:42",
+        "admin_name": "master",
+        "category": "ARCHIVE_DELETED",
+        "details": "Deleted archive 329b321e"
+    },
+    {
+        "id": "f475e884",
+        "timestamp": "2026-04-05 23:33:20",
+        "admin_name": "master",
+        "category": "RESET",
+        "details": "Factory reset database following archiving"
+    },
+    {
+        "id": "36bf2408",
+        "timestamp": "2026-04-05 23:33:20",
+        "admin_name": "master",
+        "category": "ARCHIVE_CREATED",
+        "details": "Archived current tournament as \"the crown season 1\""
+    },
+    {
+        "id": "c78f8021",
+        "timestamp": "2026-04-05 23:33:07",
+        "admin_name": "master",
+        "category": "ARCHIVE_DELETED",
+        "details": "Deleted archive 5bb8169d"
+    },
+    {
+        "id": "813adbaf",
+        "timestamp": "2026-04-05 23:26:45",
+        "admin_name": "master",
+        "category": "RESET",
+        "details": "Factory reset database following archiving"
+    },
+    {
+        "id": "5898f745",
+        "timestamp": "2026-04-05 23:26:45",
+        "admin_name": "master",
+        "category": "ARCHIVE_CREATED",
+        "details": "Archived current tournament as \"the crown season 1\""
+    },
+    {
+        "id": "4cc65bf5",
+        "timestamp": "2026-04-05 22:51:51",
+        "admin_name": "admin prime",
+        "category": "MATCH_SUBMITTED",
+        "details": "Submitted score for prelim match 52171c17"
+    },
+    {
+        "id": "1b5be7e8",
+        "timestamp": "2026-04-05 22:51:12",
+        "admin_name": "admin prime",
+        "category": "TIMER_DELETED",
+        "details": "Deleted timer preset 3086ac40"
+    },
+    {
+        "id": "31487819",
+        "timestamp": "2026-04-05 22:51:08",
+        "admin_name": "admin prime",
+        "category": "TIMER_DELETED",
+        "details": "Deleted timer preset 9c060a9d"
+    },
+    {
+        "id": "3518fcdb",
+        "timestamp": "2026-04-05 22:51:02",
+        "admin_name": "admin prime",
+        "category": "TIMER_ADDED",
+        "details": "Created timer preset: 099"
+    },
+    {
+        "id": "c21a7fbb",
+        "timestamp": "2026-04-05 22:50:09",
+        "admin_name": "master",
+        "category": "SYSTEM_ADMIN",
+        "details": "Added admin admin prime"
+    },
+    {
+        "id": "abdc09d9",
+        "timestamp": "2026-04-05 22:49:53",
+        "admin_name": "master",
+        "category": "SYSTEM_ADMIN",
+        "details": "Removed admin admin2"
+    },
+    {
+        "id": "38823de2",
+        "timestamp": "2026-04-05 22:42:36",
+        "admin_name": "System",
+        "category": "MATCH_SUBMITTED",
+        "details": "Submitted score for outround match 7f263da4"
+    },
+    {
+        "id": "1ceee6b3",
+        "timestamp": "2026-04-05 22:42:26",
+        "admin_name": "System",
+        "category": "MATCH_CREATED",
+        "details": "Created outround match in Octofinals"
+    },
+    {
+        "id": "f9c636c3",
+        "timestamp": "2026-04-05 22:41:42",
+        "admin_name": "System",
+        "category": "MATCH_SUBMITTED",
+        "details": "Submitted score for prelim match 8c8dc089"
+    },
+    {
+        "id": "6be3c39d",
+        "timestamp": "2026-04-05 22:37:52",
+        "admin_name": "System",
+        "category": "MATCH_CREATED",
+        "details": "Created preliminary match"
+    },
+    {
+        "id": "f3699fb7",
+        "timestamp": "2026-04-05 22:36:14",
+        "admin_name": "System",
+        "category": "SYSTEM_ADMIN",
+        "details": "Added admin admin2"
+    },
+    {
+        "id": "10f40ec0",
+        "timestamp": "2026-04-05 22:24:04",
+        "admin_name": "System",
+        "category": "TIMER_ADDED",
+        "details": "Created timer preset: test"
+    }
+]

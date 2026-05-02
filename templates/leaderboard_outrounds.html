@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Crown | Leaderboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; 
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,0.2) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,0) 0, transparent 50%);
+        }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #d97706; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #b45309; }
+        
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Highlight styling for Top 16 */
+        .top-16-row {
+            background: linear-gradient(90deg, rgba(245,158,11,0.05) 0%, transparent 100%);
+            border-left: 3px solid #f59e0b;
+        }
+        
+        .alias-tag {
+            font-family: monospace;
+            letter-spacing: -0.5px;
+        }
+
+        /* Bracket Styling & Mobile Responsiveness */
+        .bracket-container {
+            display: flex;
+            gap: 40px; 
+            padding: 40px 20px;
+            overflow-x: auto;
+            width: 100%;
+            justify-content: flex-start;
+            min-height: 850px;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+        }
+        @media (min-width: 1024px) {
+            .bracket-container {
+                justify-content: center;
+                scroll-snap-type: none;
+            }
+        }
+        .bracket-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            flex: 0 0 240px;
+            scroll-snap-align: center;
+        }
+        .matchup {
+            background: rgba(30, 41, 59, 1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 8px;
+            padding: 8px 10px;
+            margin: 0;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 76px;
+        }
+        .matchup:hover {
+            border-color: #f59e0b;
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.2);
+            z-index: 20;
+        }
+        
+        .bracket-matches {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            flex-grow: 1; /* Pushes identical spacing without title shift */
+            gap: 10px;
+        }
+        
+        /* Highlight path */
+        .matchup.path-active::after,
+        .matchup.path-active::before {
+            background: rgba(245, 158, 11, 0.8) !important;
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+            z-index: 5;
+        }
+
+        .team-slot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        .team-slot.winner {
+            color: #fbbf24;
+            background: linear-gradient(90deg, rgba(245, 158, 11, 0.15), transparent);
+        }
+        .team-slot.loser {
+            opacity: 0.4;
+            text-decoration: line-through;
+        }
+        
+        .score-badge {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            font-family: monospace;
+            font-weight: bold;
+        }
+        .winner .score-badge {
+            border-color: rgba(245, 158, 11, 0.5);
+            color: #f59e0b;
+        }
+        
+        .vs-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.05);
+            margin: 4px 0;
+        }
+        
+        /* Focus highlight classes (managed by JS) */
+        .candidate-highlight {
+            color: #fbbf24 !important;
+            text-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+        }
+        .candidate-dim {
+            opacity: 0.2 !important;
+            filter: grayscale(100%);
+        }
+        
+        /* Staggered Row Animation */
+        .stagger-row {
+            opacity: 0;
+            animation: fadeInRow 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+        @keyframes fadeInRow {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="text-slate-200 min-h-screen flex flex-col py-0 px-0 bg-slate-900 overflow-x-hidden">
+
+    <!-- Top Navigation Bar -->
+    <nav class="bg-slate-900/95 border-b border-amber-600/30 sticky top-0 z-50 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center space-x-8">
+                    <div class="flex-shrink-0 flex items-center gap-2">
+                        <svg class="h-8 w-auto text-amber-500 filter drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/>
+                        </svg>
+                        <span class="text-xl font-bold font-serif text-white uppercase tracking-widest">The Crown</span>
+                    </div>
+                    <a href="/" class="text-amber-500 hover:text-amber-400 px-3 py-2 rounded-md text-sm font-bold uppercase tracking-wider relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-amber-500">🏆 Leaderboard</a>
+                    <a href="/matches" class="text-slate-300 hover:text-white hover:bg-slate-800 px-3 py-2 rounded-md text-sm font-bold uppercase tracking-wider transition-colors">⚔️ Matches</a>
+                    <a href="/live" target="_blank" class="text-slate-300 hover:text-amber-500 hover:bg-slate-800 px-3 py-2 rounded-md text-sm font-bold uppercase tracking-wider transition-colors">📡 Live</a>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    {% if is_admin %}
+                        <span class="text-xs font-bold text-amber-500 uppercase tracking-wider py-2">Admin Mode</span>
+                        <a href="/admin/motions" class="text-[10px] font-bold text-amber-400 hover:text-amber-300 bg-amber-900/30 px-3 py-1 rounded border border-amber-700/50 transition-colors uppercase tracking-widest leading-tight text-center mt-1 flex items-center gap-1">🔐 Vault</a>
+                        {% if is_master %}
+                            <a href="/admin/users" class="text-xs font-bold text-indigo-400 hover:text-indigo-300 bg-indigo-900/30 px-3 py-1 rounded border border-indigo-700/50 transition-colors uppercase tracking-widest leading-none flex items-center">Users</a>
+                        {% endif %}
+                        <a href="/logout" class="text-xs font-bold text-slate-300 hover:text-amber-500 bg-slate-800/50 px-3 py-1 rounded border border-slate-700 transition-colors uppercase tracking-widest">Logout</a>
+                    {% else %}
+                        <a href="/login" class="text-xs font-bold text-slate-400 hover:text-amber-500 transition-colors uppercase tracking-widest flex items-center gap-1">
+                            Admin Login
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col items-center">
+        <!-- Messages -->
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="mb-6 w-full max-w-4xl space-y-2">
+            {% for message in messages %}
+              <div class="p-4 text-sm text-green-200 rounded-lg bg-green-900/50 border border-green-500/50 glass font-bold text-center" role="alert">
+                {{ message }}
+              </div>
+            {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+
+
+        {% if data and data|length > 0 %}
+
+        <!-- Table Section -->
+        <div class="flex justify-start w-full max-w-7xl mb-4 space-x-3 px-2">
+            <a href="/" class="px-5 py-2 bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200 font-bold uppercase tracking-widest rounded border border-slate-700 transition-colors text-xs">Preliminary Rankings</a>
+            <a href="/leaderboard/outrounds" class="px-5 py-2 bg-amber-600 text-slate-900 font-bold uppercase tracking-widest rounded shadow-lg text-xs">Outrounds Progression</a>
+        </div>
+
+        <!-- Visual Bracket -->
+        <div class="w-full max-w-7xl mb-12 animate-[fadeIn_0.5s_ease-out]">
+            <h2 class="text-center text-3xl font-black font-serif text-amber-500 uppercase tracking-[0.2em] mb-4">The Crown Bracket</h2>
+            <div class="relative w-full">
+                <!-- Mobile swipe hint -->
+                <div class="lg:hidden absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-slate-900 to-transparent pointer-events-none z-20 flex items-center justify-end pr-2">
+                    <svg class="w-6 h-6 text-amber-500 animate-pulse opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </div>
+                
+                <div class="bracket-container glass rounded-3xl" id="bracket-container">
+                    {% for r_name in ['Octofinals', 'Quarterfinals', 'Semifinals', 'Finals'] %}
+                    <div class="bracket-column">
+                        <div class="text-center text-[10px] font-black tracking-widest text-slate-500 uppercase mb-4 flex-shrink-0">{{ r_name }}</div>
+                        <div class="bracket-matches">
+                            {% set round_matches = rounds.get(r_name, []) %}
+                            {% for m in round_matches %}
+                            <div class="matchup" data-round="{{ r_name }}" data-t1="{{ m.team1_leader }}" data-t2="{{ m.team2_leader }}" data-winner="{{ m.winner_leader }}">
+                                <div class="team-slot {% if m.winner_leader == m.team1_leader %}winner{% elif m.winner_leader and m.winner_leader != m.team1_leader %}loser{% endif %} cursor-pointer team-hover-target" data-name="{{ m.team1_leader }}">
+                                    <div class="flex items-center gap-2">
+                                        {% if m.winner_leader == m.team1_leader %}
+                                        <svg class="w-3 h-3 text-amber-400 drop-shadow-[0_0_2px_rgba(245,158,11,0.8)]" viewBox="0 0 24 24" fill="currentColor"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/></svg>
+                                        {% endif %}
+                                        {% set c1 = candidates.get(m.team1_leader, {}) %}
+                                        <a href="/candidate/{{ m.team1_leader }}" class="w-5 h-5 rounded-full overflow-hidden bg-slate-800 flex-shrink-0 flex items-center justify-center border border-slate-600/50 text-[8px] font-black text-amber-500 shadow-sm hover:ring-1 hover:ring-amber-500 transition-all cursor-pointer block">
+                                            {% if c1.get('Avatar') %}
+                                            <img src="{{ url_for('static', filename='avatars/' ~ c1.get('Avatar')) }}?t={{ range(1, 100000) | random }}" class="w-full h-full object-cover">
+                                            {% else %}
+                                            {{ m.team1_leader[0] }}
+                                            {% endif %}
+                                        </a>
+                                        <a href="/candidate/{{ m.team1_leader }}" class="hover:text-amber-300 truncate max-w-[120px]">{{ m.team1_leader }}</a>
+                                    </div>
+                                    <span class="score-badge">{{ "%.1f"|format(m.t1_marks|float) if m.t1_marks else '-' }}</span>
+                                </div>
+                                <div class="vs-divider"></div>
+                                <div class="team-slot {% if m.winner_leader == m.team2_leader %}winner{% elif m.winner_leader and m.winner_leader != m.team2_leader %}loser{% endif %} cursor-pointer team-hover-target" data-name="{{ m.team2_leader }}">
+                                    <div class="flex items-center gap-2">
+                                        {% if m.winner_leader == m.team2_leader %}
+                                        <svg class="w-3 h-3 text-amber-400 drop-shadow-[0_0_2px_rgba(245,158,11,0.8)]" viewBox="0 0 24 24" fill="currentColor"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/></svg>
+                                        {% endif %}
+                                        {% set c2 = candidates.get(m.team2_leader, {}) %}
+                                        <a href="/candidate/{{ m.team2_leader }}" class="w-5 h-5 rounded-full overflow-hidden bg-slate-800 flex-shrink-0 flex items-center justify-center border border-slate-600/50 text-[8px] font-black text-amber-500 shadow-sm hover:ring-1 hover:ring-amber-500 transition-all cursor-pointer block">
+                                            {% if c2.get('Avatar') %}
+                                            <img src="{{ url_for('static', filename='avatars/' ~ c2.get('Avatar')) }}?t={{ range(1, 100000) | random }}" class="w-full h-full object-cover">
+                                            {% else %}
+                                            {{ m.team2_leader[0] }}
+                                            {% endif %}
+                                        </a>
+                                        <a href="/candidate/{{ m.team2_leader }}" class="hover:text-amber-300 truncate max-w-[120px]">{{ m.team2_leader }}</a>
+                                    </div>
+                                    <span class="score-badge">{{ "%.1f"|format(m.t2_marks|float) if m.t2_marks else '-' }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            
+                            {# Fill empty slots for layout consistency #}
+                            {% set expected = {'Octofinals': 8, 'Quarterfinals': 4, 'Semifinals': 2, 'Finals': 1}[r_name] %}
+                            {% if round_matches|length < expected %}
+                                {% for i in range(expected - round_matches|length) %}
+                                <div class="matchup opacity-40 backdrop-grayscale border-slate-700/50 hover:border-amber-900/50 transition-all pointer-events-none">
+                                    <div class="team-slot"><span class="italic text-slate-600 font-mono text-[10px] tracking-widest">AWAITING SEED</span></div>
+                                    <div class="vs-divider bg-slate-800"></div>
+                                    <div class="team-slot"><span class="italic text-slate-600 font-mono text-[10px] tracking-widest">AWAITING SEED</span></div>
+                                </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="glass shadow-2xl rounded-2xl overflow-hidden w-full max-w-7xl animate-[fadeIn_0.5s_ease-out]">
+            <div class="p-6 border-b border-slate-700/50 flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-800/80">
+                <div class="flex items-center gap-3">
+                    <svg class="h-6 w-6 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.984 3.984 0 01-2.022-.55l-1.07 1.637a1 1 0 01-1.682 0l-1.07-1.637A3.984 3.984 0 0110 15a3.984 3.984 0 01-2.022-.55l-1.07 1.637a1 1 0 01-1.682 0l-1.07-1.637A3.989 3.989 0 013.9 15a1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L10 4.323V3a1 1 0 011-1zM5.313 12.015L7.022 6.678l-1.89.945-.297.893a2.981 2.981 0 00.478 3.5zm9.374 0a2.981 2.981 0 00.478-3.5l-.297-.893-1.89-.945 1.709 5.338z" clip-rule="evenodd" />
+                    </svg>
+                    <h2 class="text-2xl font-bold text-amber-500 font-serif">Tournament Leaderboard</h2>
+                </div>
+                
+                <div class="relative w-full md:w-80">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-amber-500/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <input type="text" id="searchInput" placeholder="Search Alias or Name..." class="block w-full pl-10 pr-3 py-2 border border-slate-600/50 rounded-lg leading-5 bg-slate-900/80 text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 sm:text-sm transition-all duration-300">
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-slate-700/50" id="resultsTable">
+                    <thead class="bg-slate-900/80">
+                        <tr>
+                            <th scope="col" class="px-5 py-4 text-left text-xs font-bold text-amber-500 uppercase tracking-wider sticky left-0 bg-slate-900/90 z-10 w-16">Rank</th>
+                            <th scope="col" class="px-5 py-4 text-left text-xs font-bold text-amber-500 uppercase tracking-wider sticky left-16 bg-slate-900/90 z-10 w-64 min-w-[16rem]">Candidate Name</th>
+                            <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-slate-400 uppercase tracking-wider">Octofinals</th>
+                            <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-slate-400 uppercase tracking-wider">Quarterfinals</th>
+                            <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-slate-400 uppercase tracking-wider">Semifinals</th>
+                            <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-slate-400 uppercase tracking-wider">Finals</th>
+                            
+                            <th scope="col" class="px-5 py-4 text-center text-xs font-bold text-amber-400 uppercase tracking-wider">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-700/30 bg-transparent" id="tableBody">
+                        {% for row in data %}
+                        <tr class="stagger-row hover:bg-slate-700/40 transition-colors duration-200 group {% if loop.index <= 16 %}top-16-row{% endif %}" style="animation-delay: {{ loop.index0 * 0.05 }}s">
+                            <td class="px-5 py-4 whitespace-nowrap text-sm font-bold text-slate-400 sticky left-0 group-hover:bg-slate-800 bg-slate-900/80 z-10 backdrop-blur-sm">#{{ loop.index }}</td>
+                            <td class="px-5 py-4 whitespace-nowrap text-sm font-bold text-white group-hover:text-amber-300 transition-colors sticky left-16 group-hover:bg-slate-800 bg-slate-900/80 z-10 backdrop-blur-sm shadow-[2px_0px_5px_0px_rgba(0,0,0,0.2)]">
+                                <div class="flex items-center gap-3">
+                                    <a href="/candidate/{{ row.get('Candidate Name') }}" class="w-10 h-10 rounded-full overflow-hidden bg-slate-800 flex-shrink-0 flex items-center justify-center border border-slate-700 text-amber-500 font-black text-sm shadow-[0_0_10px_rgba(245,158,11,0.2)] hover:ring-2 hover:ring-amber-500 transition-all cursor-pointer block">
+                                        {% if row.get('Avatar') %}
+                                            <img src="{{ url_for('static', filename='avatars/' ~ row.get('Avatar')) }}?t={{ range(1, 100000) | random }}" class="w-full h-full object-cover">
+                                        {% else %}
+                                            {{ row.get('Candidate Name')[0] }}{{ row.get('Candidate Name').split(' ')[1][0] if ' ' in row.get('Candidate Name') else '' }}
+                                        {% endif %}
+                                    </a>
+                                    <div class="flex flex-col">
+                                        <a href="/candidate/{{ row.get('Candidate Name') }}" class="hover:underline tracking-wide">
+                                            {{ row.get('Candidate Name', 'Unknown') }}
+                                        </a>
+                                        {% if row.get('Alias') %}
+                                        <span class="text-[10px] text-amber-600/80 alias-tag leading-tight mt-0.5 tracking-wider uppercase">"{{ row.get('Alias') }}"</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            
+                            <!-- Outrounds Data -->
+                            <td class="px-3 py-4 text-center whitespace-nowrap text-sm text-slate-300">
+                                {% if row.get('Octofinals', '-') != '-' %}
+                                    <span class="inline-block bg-slate-800 border border-slate-600 px-3 py-1 rounded text-slate-200 shadow-inner font-mono font-bold text-xs">{{ "%.1f"|format(row.get('Octofinals')|float) }}</span>
+                                {% else %}-{% endif %}
+                            </td>
+                            <td class="px-3 py-4 text-center whitespace-nowrap text-sm text-slate-300">
+                                {% if row.get('Quarterfinals', '-') != '-' %}
+                                    <span class="inline-block bg-slate-800 border border-slate-600 px-3 py-1 rounded text-slate-200 shadow-inner font-mono font-bold text-xs">{{ "%.1f"|format(row.get('Quarterfinals')|float) }}</span>
+                                {% else %}-{% endif %}
+                            </td>
+                            <td class="px-3 py-4 text-center whitespace-nowrap text-sm text-slate-300">
+                                {% if row.get('Semifinals', '-') != '-' %}
+                                    <span class="inline-block bg-slate-800 border border-slate-600 px-3 py-1 rounded text-slate-200 shadow-inner font-mono font-bold text-xs">{{ "%.1f"|format(row.get('Semifinals')|float) }}</span>
+                                {% else %}-{% endif %}
+                            </td>
+                            <td class="px-3 py-4 text-center whitespace-nowrap text-sm text-slate-300">
+                                {% if row.get('Finals', '-') != '-' %}
+                                    <span class="inline-block bg-amber-900/20 border border-amber-600/50 px-3 py-1 rounded text-amber-500 shadow-inner font-mono font-bold text-xs">{{ "%.1f"|format(row.get('Finals')|float) }}</span>
+                                {% else %}-{% endif %}
+                            </td>
+                            
+                            <!-- Badges -->
+                            <td class="px-5 py-4 text-center whitespace-nowrap text-xs font-bold">
+                                {% if row.get('Eliminated_At') == 'Octofinals' %}
+                                    <span class="px-3 py-1 inline-flex leading-5 rounded-full bg-slate-800 text-slate-500 border border-slate-700">Octafinalist</span>
+                                {% elif row.get('Eliminated_At') == 'Quarterfinals' %}
+                                    <span class="px-3 py-1 inline-flex leading-5 rounded-full bg-purple-900/40 text-purple-400 border border-purple-600/50">Quarterfinalist</span>
+                                {% elif row.get('Eliminated_At') == 'Semifinals' %}
+                                    <span class="px-3 py-1 inline-flex leading-5 rounded-full bg-blue-900/40 text-blue-400 border border-blue-600/50">Semifinalist</span>
+                                {% elif row.get('Eliminated_At') == 'Finals' %}
+                                    <span class="px-3 py-1 inline-flex leading-5 rounded-full bg-red-900/40 text-red-500 border border-red-700/50 flex flex-row items-center justify-center gap-1"><svg class="w-3 h-3 text-red-500" viewBox="0 0 24 24" fill="currentColor"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/></svg> Finalist</span>
+                                {% else %}
+                                    <span class="px-3 py-1 inline-flex leading-5 rounded-full bg-amber-900/40 text-amber-400 border border-amber-600/50">In Running</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+            <!-- No Data State -->
+            <div class="text-center py-20 bg-slate-800/30 rounded-2xl border border-slate-700/30 w-full max-w-4xl mx-auto mt-6">
+                <svg class="mx-auto h-16 w-16 text-slate-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+                <h3 class="text-2xl font-serif text-slate-300 mb-2">No Candidates Registered</h3>
+                <p class="text-slate-500 mb-6">
+                    {% if is_admin %}
+                        Register candidates in the admin panel above to populate the leaderboards!
+                    {% else %}
+                        The tournament roster is currently empty.
+                    {% endif %}
+                </p>
+            </div>
+        {% endif %}
+
+    </div>
+
+    <script>
+        // Animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Real-time table search (matches Name or Alias)
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const filter = this.value.toLowerCase();
+                const rows = document.querySelectorAll('#tableBody tr');
+                
+                rows.forEach(row => {
+                    const candidateSection = row.cells[1] ? row.cells[1].textContent.toLowerCase() : '';
+                    if (candidateSection.includes(filter)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
+        
+        // Bracket Dynamic Interactivity
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Top-Down Bracket Structure Reordering Logic ---
+            const columns = Array.from(document.querySelectorAll('.bracket-column'));
+            
+            for (let i = columns.length - 1; i > 0; i--) {
+                const currColumn = columns[i];      // E.g. Finals
+                const prevColumn = columns[i - 1];  // E.g. Semifinals
+                
+                const currMatchups = Array.from(currColumn.querySelectorAll('.matchup'));
+                const prevMatchups = Array.from(prevColumn.querySelectorAll('.matchup'));
+                
+                if (prevMatchups.length === 0) continue;
+                
+                const numPrevSlots = prevMatchups.length;
+                const prevSlottedArray = new Array(numPrevSlots).fill(null);
+                
+                const realPrev = prevMatchups.filter(m => m.hasAttribute('data-round'));
+                const tbdPrev = prevMatchups.filter(m => !m.hasAttribute('data-round'));
+                
+                const findPrevMatch = (teamName) => {
+                    if (!teamName || teamName === 'None') return null;
+                    const idx = realPrev.findIndex(m => m.getAttribute('data-t1') === teamName || m.getAttribute('data-t2') === teamName);
+                    if (idx !== -1) {
+                        return realPrev.splice(idx, 1)[0];
+                    }
+                    return null;
+                };
+                
+                currMatchups.forEach((currM, currSlot) => {
+                    const targetSlot1 = currSlot * 2;
+                    const targetSlot2 = currSlot * 2 + 1;
+                    
+                    const t1 = currM.getAttribute('data-t1');
+                    const t2 = currM.getAttribute('data-t2');
+                    
+                    if (targetSlot1 < numPrevSlots) {
+                        const match1 = findPrevMatch(t1) || findPrevMatch(currM.getAttribute('data-winner'));
+                        if (match1) prevSlottedArray[targetSlot1] = match1;
+                    }
+                    if (targetSlot2 < numPrevSlots) {
+                        const match2 = findPrevMatch(t2);
+                        if (match2) prevSlottedArray[targetSlot2] = match2;
+                    }
+                });
+                
+                for (let slot = 0; slot < numPrevSlots; slot++) {
+                    if (prevSlottedArray[slot] === null) {
+                        if (realPrev.length > 0) prevSlottedArray[slot] = realPrev.shift();
+                        else if (tbdPrev.length > 0) prevSlottedArray[slot] = tbdPrev.shift();
+                    }
+                }
+                
+                prevSlottedArray.forEach(m => {
+                    if (m) {
+                        const targetMatches = prevColumn.querySelector('.bracket-matches');
+                        if (targetMatches) targetMatches.appendChild(m);
+                    }
+                });
+            }
+            
+            // --- DRAW SVG CONNECTING TREES ---
+            function drawBracketLines() {
+                const container = document.getElementById('bracket-container');
+                if (!container) return;
+                
+                const oldSvg = document.getElementById('bracket-lines-svg');
+                if (oldSvg) oldSvg.remove();
+
+                const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                svg.id = "bracket-lines-svg";
+                svg.style.position = "absolute";
+                svg.style.top = "0";
+                svg.style.left = "0";
+                svg.style.width = "100%";
+                svg.style.height = "100%";
+                svg.style.pointerEvents = "none";
+                svg.style.zIndex = "1";
+                container.appendChild(svg);
+
+                const cols = document.querySelectorAll('.bracket-matches');
+                for (let i = 0; i < cols.length - 1; i++) {
+                    const currentMatches = cols[i].querySelectorAll('.matchup');
+                    const nextMatches = cols[i+1].querySelectorAll('.matchup');
+
+                    for (let j = 0; j < currentMatches.length; j += 2) {
+                        if (j + 1 >= currentMatches.length) break;
+                        const match1 = currentMatches[j];
+                        const match2 = currentMatches[j+1];
+                        const nextMatch = nextMatches[Math.floor(j/2)];
+
+                        if (!match1 || !match2 || !nextMatch) continue;
+
+                        const rect1 = match1.getBoundingClientRect();
+                        const rect2 = match2.getBoundingClientRect();
+                        const nextRect = nextMatch.getBoundingClientRect();
+                        const containerRect = container.getBoundingClientRect();
+
+                        const x1 = rect1.right - containerRect.left + container.scrollLeft;
+                        const y1 = rect1.top + rect1.height / 2 - containerRect.top + container.scrollTop;
+
+                        const x2 = rect2.right - containerRect.left + container.scrollLeft;
+                        const y2 = rect2.top + rect2.height / 2 - containerRect.top + container.scrollTop;
+
+                        const targetX = nextRect.left - containerRect.left + container.scrollLeft;
+                        const targetY = nextRect.top + nextRect.height / 2 - containerRect.top + container.scrollTop;
+                        
+                        const midX = x1 + (targetX - x1) / 2;
+                        
+                        // Set path color: Use active amber color if path is active, else default dark slate
+                        const isActive = match1.classList.contains('path-active') || match2.classList.contains('path-active');
+                        const drawColor = isActive ? "rgba(245, 158, 11, 0.6)" : "rgba(71, 85, 105, 0.3)";
+
+                        const pathStr = `M ${x1} ${y1} H ${midX} V ${y2} H ${x2} M ${midX} ${(y1+y2)/2} H ${targetX}`;
+                        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                        path.setAttribute("d", pathStr);
+                        path.setAttribute("stroke", drawColor);
+                        path.setAttribute("stroke-width", isActive ? "3" : "2");
+                        path.setAttribute("fill", "none");
+                        svg.appendChild(path);
+                    }
+                }
+            }
+            
+            // Allow DOM to settle before rendering lines
+            setTimeout(drawBracketLines, 100);
+            window.addEventListener('resize', drawBracketLines);
+            // --- End Reordering Logic ---
+
+            const matchups = document.querySelectorAll('.matchup');
+            const teamTargets = document.querySelectorAll('.team-hover-target');
+            
+            // Highlight connector paths for recorded winners automatically on load
+            matchups.forEach(matchup => {
+                const winner = matchup.getAttribute('data-winner');
+                if (winner && winner !== 'None') {
+                    // Pre-activate path hints
+                    matchup.classList.add('path-active');
+                }
+            });
+
+            // Cross-highlighting candidates
+            teamTargets.forEach(target => {
+                target.addEventListener('mouseenter', function() {
+                    const candidateName = this.getAttribute('data-name');
+                    if (!candidateName || candidateName === 'None') return;
+                    
+                    teamTargets.forEach(el => {
+                        if (el.getAttribute('data-name') === candidateName) {
+                            el.parentElement.classList.add('path-active');
+                            el.classList.add('candidate-highlight');
+                        } else {
+                            if (el.getAttribute('data-name') !== 'None') {
+                                el.classList.add('candidate-dim');
+                            }
+                        }
+                    });
+                });
+                
+                target.addEventListener('mouseleave', function() {
+                    // Reset to default win states
+                    teamTargets.forEach(el => {
+                        const matchup = el.parentElement;
+                        const winner = matchup.getAttribute('data-winner');
+                        if (!winner || winner === 'None') {
+                            matchup.classList.remove('path-active');
+                        }
+                        
+                        el.classList.remove('candidate-highlight');
+                        el.classList.remove('candidate-dim');
+                    });
+                });
+            });
+            
+            // Drag to scroll for bracket container
+            const slider = document.getElementById('bracket-container');
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+
+            slider.addEventListener('mousedown', (e) => {
+                isDown = true;
+                slider.style.cursor = 'grabbing';
+                startX = e.pageX - slider.offsetLeft;
+                scrollLeft = slider.scrollLeft;
+            });
+            slider.addEventListener('mouseleave', () => {
+                isDown = false;
+                slider.style.cursor = 'default';
+            });
+            slider.addEventListener('mouseup', () => {
+                isDown = false;
+                slider.style.cursor = 'default';
+            });
+            slider.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - slider.offsetLeft;
+                const walk = (x - startX) * 2; // scroll-fast
+                slider.scrollLeft = scrollLeft - walk;
+            });
+        });
+    </script>
+</body>
+</html>

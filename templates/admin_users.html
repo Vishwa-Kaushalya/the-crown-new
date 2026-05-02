@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Crown | Manage Admins</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #010101; background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), radial-gradient(at 50% 0%, hsla(225,39%,30%,0.2) 0, transparent 50%); }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+    </style>
+</head>
+<body class="text-slate-200 min-h-screen flex flex-col items-center py-12 px-4 bg-slate-900">
+
+    <div class="w-full max-w-4xl">
+        <div class="flex justify-between items-center mb-12 border-b border-amber-600/30 pb-6">
+            <div>
+                <h1 class="text-4xl font-extrabold text-white font-serif tracking-widest uppercase">Manage Admins</h1>
+                <p class="text-amber-500 text-xs font-bold tracking-widest mt-2">MASTER ADMINISTRATIVE CONTROL</p>
+            </div>
+            <a href="/matches" class="px-6 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold uppercase tracking-widest rounded-full transition-all border border-slate-700">Back to Dashboard</a>
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="mb-8 space-y-2">
+            {% for message in messages %}
+              <div class="p-4 text-sm text-amber-200 rounded-lg bg-amber-900/40 border border-amber-500/30 glass" role="alert">
+                {{ message }}
+              </div>
+            {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Register New Admin Card -->
+            <div class="glass shadow-2xl rounded-2xl p-8 border-t-2 border-amber-500">
+                <h3 class="text-lg font-serif text-white font-bold mb-6 uppercase tracking-wider flex items-center gap-2">
+                    <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                    Register New Admin
+                </h3>
+                <form action="/admin/register_admin" method="post" class="space-y-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Username</label>
+                        <input name="username" type="text" required class="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded text-sm text-white focus:ring-1 focus:ring-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Set Password</label>
+                        <input name="password" type="password" required class="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded text-sm text-white focus:ring-1 focus:ring-amber-500">
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold uppercase tracking-widest text-xs rounded transition-all shadow-lg mt-2">Create Admin Account</button>
+                </form>
+            </div>
+
+            <!-- Existing Admins List -->
+            <div class="lg:col-span-2 glass shadow-2xl rounded-2xl p-8">
+                <h3 class="text-lg font-serif text-white font-bold mb-6 uppercase tracking-wider flex items-center gap-2">
+                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    Current Administrators
+                </h3>
+                <div class="overflow-hidden bg-slate-800/30 rounded-xl border border-slate-700/50">
+                    <table class="min-w-full divide-y divide-slate-700">
+                        <thead class="bg-slate-900/50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-widest">Username</th>
+                                <th class="px-6 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-widest">Role</th>
+                                <th class="px-6 py-3 text-right text-[10px] font-bold text-slate-500 uppercase tracking-widest">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800">
+                            {% for admin in admins %}
+                            <tr class="hover:bg-slate-700/20 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-white">{{ admin.username }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 py-0.5 text-[10px] font-black uppercase rounded {{ 'bg-amber-900/50 text-amber-500' if admin.role == 'master' else 'bg-slate-700 text-slate-400' }}">
+                                        {{ admin.role }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                                    {% if admin.role != 'master' %}
+                                    <button type="button" 
+                                            onclick="openDeleteModal('{{ admin.username }}')"
+                                            class="text-red-500 hover:text-red-400 text-xs font-bold uppercase tracking-widest bg-red-500/10 px-3 py-1 rounded border border-red-500/20 hover:border-red-500/50 transition-all">
+                                        Remove
+                                    </button>
+                                    {% else %}
+                                    <span class="text-slate-600 text-[10px] uppercase font-black px-3 py-1 bg-slate-800/50 rounded border border-slate-700/50">Protected</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Delete Confirmation Modal -->
+    <div id="deleteModal" class="fixed inset-0 z-[100] flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
+        <div class="fixed inset-0 bg-slate-950/80 backdrop-blur-md" onclick="closeDeleteModal()"></div>
+        <div id="deleteModalCard" class="relative glass max-w-md w-full p-8 rounded-2xl border-t-4 border-red-600 shadow-2xl transform scale-90 transition-all duration-300">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-red-600/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-600/30">
+                    <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                </div>
+                <h2 class="text-2xl font-serif font-bold text-white mb-2 uppercase tracking-tight">Revoke Access?</h2>
+                <p class="text-slate-400 text-sm mb-6">
+                    Are you sure you want to remove <span id="targetUsername" class="text-red-400 font-bold"></span> from the administrative team? They will immediately lose access to all dashboard controls.
+                </p>
+                
+                <div class="flex gap-4">
+                    <button onclick="closeDeleteModal()" class="flex-1 py-3 px-4 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold uppercase tracking-widest rounded transition-all">Cancel</button>
+                    <form id="deleteForm" method="post" action="#" class="flex-1">
+                        <button type="submit" class="w-full py-3 px-4 bg-red-600 hover:bg-red-500 text-white text-xs font-bold uppercase tracking-widest rounded shadow-lg transition-all">Yes, Remove</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openDeleteModal(username) {
+            const modal = document.getElementById('deleteModal');
+            const card = document.getElementById('deleteModalCard');
+            const targetSpan = document.getElementById('targetUsername');
+            const form = document.getElementById('deleteForm');
+            
+            targetSpan.innerText = username;
+            form.action = `/admin/delete_admin/${encodeURIComponent(username)}`;
+            
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            card.classList.remove('scale-90');
+            card.classList.add('scale-100');
+        }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteModal');
+            const card = document.getElementById('deleteModalCard');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            card.classList.add('scale-90');
+            card.classList.remove('scale-100');
+        }
+    </script>
+</body>
+</html>
