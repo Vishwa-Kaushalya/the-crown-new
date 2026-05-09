@@ -135,3 +135,41 @@ A comprehensive visual overhaul was applied across the Leaderboard and Matches p
 
 ### Port Change
 The development server now runs on **port 5001** (previously 5000).
+
+### Comparison with The-Crown reference implementation
+`the-crown-new` is the more advanced codebase. All functionality in `The-Crown` is present here, plus several additions that don't exist in the reference:
+
+- Dedicated `/admin/registration` page with per-candidate class, level, institute, phone, and notes fields
+- In-form avatar upload with browser-side crop
+- Motion Reveal kiosk — cinematic fullscreen reveal with decoy-shuffling animation (`/reveal_kiosk`, `/api/check_reveal`)
+- Match Poster page (`/match_poster/<match_id>`)
+- Phase-aware live dashboard that automatically switches between prelims and outrounds views
+- Hall of Fame per-candidate profile within archived tournaments
+
+No features were found to be missing from `the-crown-new` relative to `The-Crown`.
+
+---
+
+### Multi-Tournament Workspace — Bug Fix (May 2026)
+The `reset_data` route (Factory Reset) was incorrectly targeting the legacy `master_data.json` file directly, bypassing the tournament workspace system entirely. It now calls `save_data()` which writes the empty dataset into whichever workspace is currently active — leaving all other tournament files completely untouched.
+
+**Before (broken):**
+```python
+if os.path.exists(MASTER_JSON):
+    os.remove(MASTER_JSON)
+```
+
+**After (correct):**
+```python
+fresh_data = {"Candidates": {}, "Rounds": {}, "OutroundTeams": {}}
+save_data(fresh_data)
+```
+
+The full multi-tournament workspace lifecycle now works correctly end-to-end:
+- **Create** — new tournament workspace written to `data/tournaments/<id>.json`
+- **Activate** — switches the live tournament; all other workspaces are preserved
+- **Factory Reset** — wipes only the currently active workspace, never touching inactive ones
+- **Archive & Close** — snapshots the active workspace to Hall of Fame, marks it archived, and auto-creates a fresh active workspace
+
+### Tournament Reset — Registration Data Preservation Fix (May 2026)
+`reset_tournament` (schedule reset that keeps the candidate roster) was only preserving `Candidate Name` and `Alias` when rebuilding each candidate record. Because `the-crown-new` collects richer registration data (`Class`, `Level`, `Institute`, `Phone`, `Notes`, `Avatar`), a schedule reset would silently wipe all of those fields. The function now explicitly carries forward every profile field while still zeroing wins and dropping all round scores.

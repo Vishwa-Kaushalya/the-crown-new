@@ -849,12 +849,19 @@ def reset_tournament():
         
     master = load_data()
     for name, c_data in master.get('Candidates', {}).items():
-        # Retain only Name and Alias, reset everything else
+        # Retain registration profile fields, wipe all scores and match results
         base = {
             'Candidate Name': c_data.get('Candidate Name'),
             'Alias': c_data.get('Alias'),
+            'Class': c_data.get('Class'),
+            'Level': c_data.get('Level'),
+            'Institute': c_data.get('Institute'),
+            'Phone': c_data.get('Phone'),
+            'Notes': c_data.get('Notes'),
             'Wins': 0
         }
+        if c_data.get('Avatar'):
+            base['Avatar'] = c_data.get('Avatar')
         master['Candidates'][name] = base
         
     master['Rounds'] = {}
@@ -894,11 +901,11 @@ def reset_outrounds_history():
 def reset_data():
     if not session.get('is_admin'):
         return redirect(url_for('login'))
-        
-    if os.path.exists(MASTER_JSON):
-        os.remove(MASTER_JSON)
-    log_action('RESET', 'Factory reset entire database')
-    flash('Hard Reset Completed! Database has been completely wiped (including Roster).')
+
+    fresh_data = {"Candidates": {}, "Rounds": {}, "OutroundTeams": {}}
+    save_data(fresh_data)
+    log_action('RESET', 'Factory reset active tournament database')
+    flash('Hard Reset Completed! All data for the active tournament has been wiped (including Roster).')
     return redirect(url_for('index'))
 
 @app.route('/admin/upload_avatar', methods=['POST'])
