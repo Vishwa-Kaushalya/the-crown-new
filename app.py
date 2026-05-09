@@ -1652,5 +1652,5 @@ def hall_of_fame_candidate(archive_id, name):
     return render_template('candidate_profile.html', candidate=candidate, history=history, is_admin=False, archive_meta=archive_meta)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True, port=5000)
+    app.run(host='0.0.0.0', debug=True, port=5001)
 

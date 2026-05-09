@@ -12,8 +12,7 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0f172a; 
-            background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), radial-gradient(at 50% 0%, hsla(225,39%,30%,0.2) 0, transparent 50%);
+            background-color: #080c14;
         }
         .font-serif { font-family: 'Playfair Display', serif; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
@@ -21,35 +20,34 @@
 </head>
 <body class="text-slate-200 min-h-screen pb-12">
     <!-- Navigation -->
-    <nav class="bg-slate-900/95 border-b border-amber-600/30 sticky top-0 z-50 backdrop-blur-md">
+    <nav class="sticky top-0 z-50 border-b border-white/5 bg-[#080c14]/90 backdrop-blur-xl">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center space-x-8">
-                    {% if archive_meta %}
-                    <a href="/hall_of_fame/{{ archive_meta.id }}" class="flex-shrink-0 flex items-center gap-2">
-                    {% else %}
-                    <a href="/" class="flex-shrink-0 flex items-center gap-2">
-                    {% endif %}
-                        <svg class="h-8 w-auto text-amber-500" viewBox="0 0 24 24" fill="currentColor">
+            <div class="flex justify-between h-14">
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2.5 pr-3 sm:pr-5">
+                        <svg class="h-6 w-auto text-amber-500 drop-shadow-[0_0_10px_rgba(245,158,11,0.6)]" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/>
                         </svg>
-                        <span class="text-xl font-bold font-serif text-white uppercase tracking-widest">The Crown</span>
-                    </a>
+                        <span class="text-base font-bold font-serif text-white uppercase tracking-widest hidden sm:block">The Crown</span>
+                    </div>
                 </div>
-                <div class="flex items-center">
+                <div class="flex items-center gap-3">
                     {% if archive_meta %}
-                    <a href="/hall_of_fame/{{ archive_meta.id }}" class="text-amber-500 hover:text-amber-400 text-sm font-bold uppercase tracking-wider">← Back to Archive ({{ archive_meta.name }})</a>
+                    <a href="/hall_of_fame/{{ archive_meta.id }}" class="text-amber-400 hover:text-amber-300 text-xs font-bold uppercase tracking-wider transition-colors">← Archive: {{ archive_meta.name }}</a>
                     {% else %}
-                    <a href="/" class="text-amber-500 hover:text-amber-400 text-sm font-bold uppercase tracking-wider">← Back to Leaderboard</a>
+                    <a href="/" class="text-amber-400 hover:text-amber-300 text-xs font-bold uppercase tracking-wider transition-colors">← Leaderboard</a>
+                    {% endif %}
+                    {% if is_admin %}
+                    <a href="/logout" class="text-[10px] font-bold text-slate-400 hover:text-white bg-white/5 px-2.5 py-1 rounded border border-white/8 transition-colors uppercase tracking-widest">Logout</a>
                     {% endif %}
                 </div>
             </div>
         </div>
     </nav>
 
-    <div class="max-w-6xl mx-auto px-4 mt-10">
+    <div class="max-w-6xl mx-auto px-4 mt-6 sm:mt-10">
         <!-- Profile Hero -->
-        <div class="glass rounded-3xl p-8 mb-8 flex flex-col md:flex-row items-center gap-8 shadow-2xl relative overflow-hidden">
+        <div class="glass rounded-3xl p-5 sm:p-8 mb-8 flex flex-col md:flex-row items-center gap-5 sm:gap-8 shadow-2xl relative overflow-hidden">
             <div class="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
             
             <!-- Avatar -->
@@ -73,7 +71,7 @@
             </div>
 
             <div class="text-center md:text-left">
-                <h1 class="text-4xl md:text-5xl font-bold font-serif text-white mb-2">{{ candidate.get('Candidate Name') }}</h1>
+                <h1 class="text-2xl sm:text-4xl md:text-5xl font-bold font-serif text-white mb-2">{{ candidate.get('Candidate Name') }}</h1>
                 {% if candidate.get('Alias') %}
                     <p class="text-amber-500 text-xl font-medium tracking-tight mb-4">"{{ candidate.get('Alias') }}"</p>
                 {% endif %}
@@ -199,24 +197,24 @@
 
         <!-- Match History -->
         <div class="mt-8 glass rounded-3xl shadow-xl overflow-hidden">
-            <div class="px-8 py-6 bg-slate-800/50 border-b border-slate-700/50 flex justify-between items-center">
-                <h3 class="text-xl font-bold text-white font-serif tracking-wide">Match History</h3>
+            <div class="px-5 sm:px-8 py-5 sm:py-6 bg-slate-800/50 border-b border-slate-700/50 flex justify-between items-center">
+                <h3 class="text-lg sm:text-xl font-bold text-white font-serif tracking-wide">Match History</h3>
             </div>
             <div class="overflow-x-auto">
-                <table class="w-full text-left">
+                <table class="w-full text-left min-w-[480px]">
                     <thead class="bg-slate-900/50 text-amber-500 text-[10px] font-bold uppercase tracking-widest">
                         <tr>
-                            <th class="px-8 py-4">Round</th>
-                            <th class="px-8 py-4 text-center">Outcome</th>
-                            <th class="px-8 py-4">Opponent(s)</th>
-                            <th class="px-8 py-4 text-right">Marks</th>
+                            <th class="px-4 sm:px-8 py-4">Round</th>
+                            <th class="px-4 sm:px-8 py-4 text-center">Outcome</th>
+                            <th class="px-4 sm:px-8 py-4">Opponent(s)</th>
+                            <th class="px-4 sm:px-8 py-4 text-right">Marks</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-700/30">
                         {% for h in history %}
                         <tr class="hover:bg-slate-800/40 transition-colors">
-                            <td class="px-8 py-4 font-bold text-slate-300">{{ h.round }}</td>
-                            <td class="px-8 py-4 text-center">
+                            <td class="px-4 sm:px-8 py-3 sm:py-4 font-bold text-slate-300 whitespace-nowrap">{{ h.round }}</td>
+                            <td class="px-4 sm:px-8 py-3 sm:py-4 text-center">
                                 {% if h.result == 'Win' %}
                                     <span class="bg-green-900/40 text-green-400 px-3 py-1 rounded-full text-xs font-bold border border-green-500/30">WIN</span>
                                 {% elif h.result == 'Loss' %}
@@ -227,8 +225,8 @@
                                     <span class="bg-amber-900/40 text-amber-500 px-3 py-1 rounded-full text-xs font-bold border border-amber-500/30">PENDING</span>
                                 {% endif %}
                             </td>
-                            <td class="px-8 py-4 text-slate-400 text-sm italic">{{ h.opponent }}</td>
-                            <td class="px-8 py-4 text-right font-black text-amber-500">{{ h.marks }}</td>
+                            <td class="px-4 sm:px-8 py-3 sm:py-4 text-slate-400 text-sm italic">{{ h.opponent }}</td>
+                            <td class="px-4 sm:px-8 py-3 sm:py-4 text-right font-black text-amber-500 whitespace-nowrap">{{ h.marks }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>

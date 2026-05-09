@@ -168,33 +168,32 @@
 <body class="text-slate-200 min-h-screen flex flex-col py-0 px-0 bg-slate-900 overflow-x-hidden">
 
     <!-- Top Navigation Bar -->
-    <nav class="bg-slate-900/95 border-b border-amber-600/30 sticky top-0 z-50 backdrop-blur-md">
+    <nav class="sticky top-0 z-50 border-b border-white/5 bg-[#080c14]/90 backdrop-blur-xl">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center space-x-8">
-                    <div class="flex-shrink-0 flex items-center gap-2">
-                        <svg class="h-8 w-auto text-amber-500 filter drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" viewBox="0 0 24 24" fill="currentColor">
+            <div class="flex justify-between h-14">
+                <div class="flex items-center gap-3 sm:gap-5">
+                    <div class="flex items-center gap-2.5 pr-3 sm:pr-5 border-r border-white/8">
+                        <svg class="h-6 w-auto text-amber-500 drop-shadow-[0_0_10px_rgba(245,158,11,0.6)]" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/>
                         </svg>
-                        <span class="text-xl font-bold font-serif text-white uppercase tracking-widest">The Crown</span>
+                        <span class="text-base font-bold font-serif text-white uppercase tracking-widest hidden sm:block">The Crown</span>
                     </div>
-                    <a href="/" class="text-amber-500 hover:text-amber-400 px-3 py-2 rounded-md text-sm font-bold uppercase tracking-wider relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-amber-500">🏆 Leaderboard</a>
-                    <a href="/matches" class="text-slate-300 hover:text-white hover:bg-slate-800 px-3 py-2 rounded-md text-sm font-bold uppercase tracking-wider transition-colors">⚔️ Matches</a>
-                    <a href="/live" target="_blank" class="text-slate-300 hover:text-amber-500 hover:bg-slate-800 px-3 py-2 rounded-md text-sm font-bold uppercase tracking-wider transition-colors">📡 Live</a>
+                    <div class="hidden sm:flex items-center gap-4">
+                        <a href="/" class="text-amber-400 text-sm font-bold uppercase tracking-wider border-b-2 border-amber-500 pb-0.5">Leaderboard</a>
+                        <a href="/matches" class="text-slate-400 hover:text-white text-sm font-bold uppercase tracking-wider transition-colors">Matches</a>
+                        <a href="/live" target="_blank" class="text-slate-400 hover:text-amber-400 text-sm font-bold uppercase tracking-wider transition-colors">Live</a>
+                    </div>
                 </div>
-                
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center gap-2">
                     {% if is_admin %}
-                        <span class="text-xs font-bold text-amber-500 uppercase tracking-wider py-2">Admin Mode</span>
-                        <a href="/admin/motions" class="text-[10px] font-bold text-amber-400 hover:text-amber-300 bg-amber-900/30 px-3 py-1 rounded border border-amber-700/50 transition-colors uppercase tracking-widest leading-tight text-center mt-1 flex items-center gap-1">🔐 Vault</a>
+                        <span class="hidden sm:block text-[10px] font-bold text-amber-500/60 uppercase tracking-widest">Admin</span>
+                        <a href="/admin/motions" class="hidden sm:flex text-[10px] font-bold text-amber-400 hover:text-amber-300 bg-amber-500/10 px-2.5 py-1 rounded border border-amber-500/20 transition-colors uppercase tracking-widest">Vault</a>
                         {% if is_master %}
-                            <a href="/admin/users" class="text-xs font-bold text-indigo-400 hover:text-indigo-300 bg-indigo-900/30 px-3 py-1 rounded border border-indigo-700/50 transition-colors uppercase tracking-widest leading-none flex items-center">Users</a>
+                            <a href="/admin/users" class="hidden md:flex text-[10px] font-bold text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 px-2.5 py-1 rounded border border-indigo-500/20 transition-colors uppercase tracking-widest">Users</a>
                         {% endif %}
-                        <a href="/logout" class="text-xs font-bold text-slate-300 hover:text-amber-500 bg-slate-800/50 px-3 py-1 rounded border border-slate-700 transition-colors uppercase tracking-widest">Logout</a>
+                        <a href="/logout" class="text-[10px] font-bold text-slate-400 hover:text-white bg-white/5 px-2.5 py-1 rounded border border-white/8 transition-colors uppercase tracking-widest">Logout</a>
                     {% else %}
-                        <a href="/login" class="text-xs font-bold text-slate-400 hover:text-amber-500 transition-colors uppercase tracking-widest flex items-center gap-1">
-                            Admin Login
-                        </a>
+                        <a href="/login" class="text-xs font-bold text-slate-500 hover:text-amber-400 transition-colors uppercase tracking-widest">Admin Login</a>
                     {% endif %}
                 </div>
             </div>
@@ -220,7 +219,7 @@
         {% if data and data|length > 0 %}
 
         <!-- Table Section -->
-        <div class="flex justify-start w-full max-w-7xl mb-4 space-x-3 px-2">
+        <div class="flex flex-wrap justify-start w-full max-w-7xl mb-4 gap-2 px-2">
             <a href="/" class="px-5 py-2 bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200 font-bold uppercase tracking-widest rounded border border-slate-700 transition-colors text-xs">Preliminary Rankings</a>
             <a href="/leaderboard/outrounds" class="px-5 py-2 bg-amber-600 text-slate-900 font-bold uppercase tracking-widest rounded shadow-lg text-xs">Outrounds Progression</a>
         </div>

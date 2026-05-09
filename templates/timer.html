@@ -44,11 +44,11 @@
 <body class="text-slate-200 min-h-screen flex flex-col py-0 px-0 bg-slate-900 overflow-x-hidden">
 
     <!-- Hamburger Sidebar -->
-    <div id="sidebar" class="fixed inset-y-0 left-0 w-64 glass z-[100] transform -translate-x-full transition-transform duration-300 shadow-2xl border-r border-slate-700/50 flex flex-col">
-        <div class="p-6 flex justify-between items-center border-b border-slate-700/50 bg-slate-900/50">
-            <span class="text-xl font-bold font-serif text-amber-500 uppercase tracking-widest">Menu</span>
+    <div id="sidebar" class="fixed inset-y-0 left-0 w-64 glass z-[100] transform -translate-x-full transition-transform duration-300 shadow-2xl border-r border-white/5 flex flex-col">
+        <div class="p-6 flex justify-between items-center border-b border-white/5">
+            <span class="text-lg font-bold font-serif text-amber-500 uppercase tracking-widest">Menu</span>
             <button onclick="toggleSidebar()" class="text-slate-400 hover:text-white transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
         </div>
         <div class="p-6 flex flex-col gap-6 mt-4">
@@ -88,35 +88,35 @@
 
 
     <!-- Top Navigation Bar -->
-    <nav class="bg-slate-900/95 border-b border-amber-600/30 sticky top-0 z-50 backdrop-blur-md">
+    <nav class="sticky top-0 z-50 border-b border-white/5 bg-[#080c14]/90 backdrop-blur-xl">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">                <div class="flex items-center space-x-6">
-                    <button onclick="toggleSidebar()" class="text-slate-300 hover:text-white transition-colors ml-2 mr-2 group">
-                        <svg class="w-6 h-6 group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            <div class="flex justify-between h-14">
+                <div class="flex items-center gap-3 sm:gap-5">
+                    <button onclick="toggleSidebar()" class="text-slate-500 hover:text-white transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                     </button>
-                    <div class="flex-shrink-0 flex items-center gap-2 pr-4 border-r border-slate-700/50">
-                        <svg class="h-8 w-auto text-amber-500 filter drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" viewBox="0 0 24 24" fill="currentColor">
+                    <div class="flex items-center gap-2.5 pr-3 sm:pr-5 border-r border-white/8">
+                        <svg class="h-6 w-auto text-amber-500 drop-shadow-[0_0_10px_rgba(245,158,11,0.6)]" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/>
                         </svg>
-                        <span class="text-xl font-bold font-serif text-white uppercase tracking-widest">The Crown</span>
+                        <span class="text-base font-bold font-serif text-white uppercase tracking-widest hidden sm:block">The Crown</span>
                     </div>
-                    <a href="/" class="text-slate-300 hover:text-white hover:bg-slate-800 px-3 py-2 rounded-md text-sm font-bold uppercase tracking-wider transition-colors">🏆 Leaderboard</a>
-                    <a href="/matches" class="text-slate-300 hover:text-white hover:bg-slate-800 px-3 py-2 rounded-md text-sm font-bold uppercase tracking-wider transition-colors">⚔️ Matches</a>
+                    <div class="hidden sm:flex items-center gap-4">
+                        <a href="/" class="text-slate-400 hover:text-white text-sm font-bold uppercase tracking-wider transition-colors">Leaderboard</a>
+                        <a href="/matches" class="text-slate-400 hover:text-white text-sm font-bold uppercase tracking-wider transition-colors">Matches</a>
+                    </div>
                 </div>
-                
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center gap-2">
                     {% if is_admin %}
-                        <span class="text-xs font-bold text-amber-500 uppercase tracking-wider py-2">Admin Mode</span>
-                        <a href="/admin/motions" class="text-[10px] font-bold text-amber-400 hover:text-amber-300 bg-amber-900/30 px-3 py-1 rounded border border-amber-700/50 transition-colors uppercase tracking-widest leading-tight text-center mt-1 flex items-center gap-1">🔐 Vault</a>
+                        <span class="hidden sm:block text-[10px] font-bold text-amber-500/60 uppercase tracking-widest">Admin</span>
+                        <a href="/admin/motions" class="hidden sm:flex text-[10px] font-bold text-amber-400 hover:text-amber-300 bg-amber-500/10 px-2.5 py-1 rounded border border-amber-500/20 transition-colors uppercase tracking-widest">Vault</a>
                         {% if is_master %}
-                            <a href="/admin/users" class="text-xs font-bold text-indigo-400 hover:text-indigo-300 bg-indigo-900/30 px-3 py-1 rounded border border-indigo-700/50 transition-colors uppercase tracking-widest leading-none flex items-center">Users</a>
-                            <a href="/admin/audit" class="text-[10px] font-bold text-red-400 hover:text-red-300 bg-red-900/20 px-3 py-1 rounded border border-red-700/50 transition-colors uppercase tracking-widest leading-none flex items-center">Logs</a>
+                            <a href="/admin/users" class="hidden md:flex text-[10px] font-bold text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 px-2.5 py-1 rounded border border-indigo-500/20 transition-colors uppercase tracking-widest">Users</a>
+                            <a href="/admin/audit" class="hidden md:flex text-[10px] font-bold text-red-400 hover:text-red-300 bg-red-500/10 px-2.5 py-1 rounded border border-red-500/20 transition-colors uppercase tracking-widest">Logs</a>
                         {% endif %}
-                        <a href="/logout" class="text-xs font-bold text-slate-300 hover:text-amber-500 bg-slate-800/50 px-3 py-1 rounded border border-slate-700 transition-colors uppercase tracking-widest">Logout</a>
+                        <a href="/logout" class="text-[10px] font-bold text-slate-400 hover:text-white bg-white/5 px-2.5 py-1 rounded border border-white/8 transition-colors uppercase tracking-widest">Logout</a>
                     {% else %}
-                        <a href="/login" class="text-xs font-bold text-slate-400 hover:text-amber-500 transition-colors uppercase tracking-widest flex items-center gap-1">
-                            Admin Login
-                        </a>
+                        <a href="/login" class="text-xs font-bold text-slate-500 hover:text-amber-400 transition-colors uppercase tracking-widest">Admin Login</a>
                     {% endif %}
                 </div>
             </div>
@@ -161,7 +161,7 @@
         {% endif %}
 
         <!-- THE TIMER DISPLAY -->
-        <div id="timerContainer" class="glass rounded-[3rem] p-16 md:p-20 shadow-[0_0_100px_rgba(245,158,11,0.1)] border-t-[4px] border-slate-600 w-full max-w-5xl flex flex-col items-center justify-center relative overflow-hidden transition-all duration-500">
+        <div id="timerContainer" class="glass rounded-3xl sm:rounded-[3rem] p-8 sm:p-16 md:p-20 shadow-[0_0_100px_rgba(245,158,11,0.1)] border-t-[4px] border-slate-600 w-full max-w-5xl flex flex-col items-center justify-center relative overflow-hidden transition-all duration-500">
             <!-- Background Glow Decor -->
             <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-amber-500/10 rounded-full blur-[100px] pointer-events-none"></div>
 
@@ -169,7 +169,7 @@
                 <span id="presetNameDisplay" class="text-white">Select a Timer Above</span>
             </div>
             
-            <div id="timeDisplay" class="text-8xl md:text-[12rem] font-black font-mono text-white leading-none timer-glow relative z-10 select-none opacity-50 transition-opacity">
+            <div id="timeDisplay" class="text-6xl sm:text-8xl md:text-[10rem] lg:text-[12rem] font-black font-mono text-white leading-none timer-glow relative z-10 select-none opacity-50 transition-opacity">
                 00:00
             </div>
             

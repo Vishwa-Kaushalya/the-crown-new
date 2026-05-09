@@ -4,55 +4,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Crown | Leaderboard</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,700&family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0f172a; 
-            background-image: 
-                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
-                radial-gradient(at 50% 0%, hsla(225,39%,30%,0.2) 0, transparent 50%), 
-                radial-gradient(at 100% 0%, hsla(339,49%,30%,0) 0, transparent 50%);
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #080c14; }
         .font-serif { font-family: 'Playfair Display', serif; }
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #d97706; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #b45309; }
-        
+        .font-mono  { font-family: 'JetBrains Mono', monospace; }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d97706; border-radius: 99px; }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
         .glass {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
         }
-        
-        /* Highlight styling for Top 16 */
-        .top-16-row {
-            background: linear-gradient(90deg, rgba(245,158,11,0.05) 0%, transparent 100%);
-            border-left: 3px solid #f59e0b;
+
+        @keyframes rowUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
-        
-        .alias-tag {
-            font-family: monospace;
-            letter-spacing: -0.5px;
+        @keyframes heroFade {
+            from { opacity: 0; transform: translateY(-8px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
+        .hero-animate { animation: heroFade 0.7s ease-out both; }
+
+        .rank-1-glow { box-shadow: 0 0 24px rgba(245,158,11,0.5), 0 0 8px rgba(245,158,11,0.3); }
+
+        .row-rank-1 { background: linear-gradient(90deg, rgba(245,158,11,0.12) 0%, rgba(245,158,11,0.03) 50%, transparent 100%); }
+        .row-rank-2 { background: linear-gradient(90deg, rgba(148,163,184,0.07) 0%, transparent 60%); }
+        .row-rank-3 { background: linear-gradient(90deg, rgba(180,83,9,0.1) 0%, transparent 60%); }
+        .row-top16  { background: linear-gradient(90deg, rgba(245,158,11,0.03) 0%, transparent 60%); border-left: 2px solid rgba(245,158,11,0.3); }
+
+        .marks-bar  { height: 3px; border-radius: 99px; background: rgba(255,255,255,0.06); overflow: hidden; }
+        .marks-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #f59e0b, #fbbf24); transition: width 1s ease-out; }
+
+        .pip-on  { background: #4ade80; box-shadow: 0 0 6px rgba(74,222,128,0.5); }
+        .pip-off { background: rgba(255,255,255,0.08); }
+
+        @keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .live-dot { animation: livePulse 2s ease-in-out infinite; }
+
+        .data-row { transition: background 0.15s ease; }
+        .data-row:hover { background: rgba(255,255,255,0.03) !important; }
+
+        .alias-tag { font-family: 'JetBrains Mono', monospace; }
     </style>
 </head>
-<body class="text-slate-200 min-h-screen flex flex-col py-0 px-0 bg-slate-900 overflow-x-hidden">
+<body class="text-slate-200 min-h-screen flex flex-col bg-[#080c14] overflow-x-hidden relative z-[1]">
 
-    <!-- Hamburger Sidebar -->
-    <div id="sidebar" class="fixed inset-y-0 left-0 w-64 glass z-[100] transform -translate-x-full transition-transform duration-300 shadow-2xl border-r border-slate-700/50 flex flex-col">
-        <div class="p-6 flex justify-between items-center border-b border-slate-700/50 bg-slate-900/50">
-            <span class="text-xl font-bold font-serif text-amber-500 uppercase tracking-widest">Menu</span>
+    <!-- Ambient background blobs -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-amber-500/5 rounded-full blur-[120px]"></div>
+        <div class="absolute top-1/2 -left-40 w-[400px] h-[400px] bg-indigo-500/3 rounded-full blur-[100px]"></div>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 w-64 glass z-[100] transform -translate-x-full transition-transform duration-300 shadow-2xl border-r border-white/5 flex flex-col">
+        <div class="p-6 flex justify-between items-center border-b border-white/5">
+            <span class="text-lg font-bold font-serif text-amber-500 uppercase tracking-widest">Menu</span>
             <button onclick="toggleSidebar()" class="text-slate-400 hover:text-white transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
         </div>
-        <div class="p-6 flex flex-col gap-6 mt-4">
+        <div class="p-6 flex flex-col gap-5 mt-2">
             {% if is_admin %}
             <a href="/admin/registration" class="text-blue-400 hover:text-blue-300 text-sm font-bold uppercase tracking-wider transition-colors flex items-center gap-3">
                 📋 Registration
@@ -61,121 +89,139 @@
                 🔐 Motions Vault
             </a>
             {% endif %}
-            <a href="/timer" class="text-slate-300 hover:text-amber-500 text-sm font-bold uppercase tracking-wider transition-colors flex items-center gap-3">
-                ⏱️ Official Timer
+            <a href="/timer" class="text-slate-400 hover:text-amber-400 text-sm font-bold uppercase tracking-wider transition-colors flex items-center gap-3">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Official Timer
             </a>
-            <a href="/hall_of_fame" class="text-slate-300 hover:text-amber-500 text-sm font-bold uppercase tracking-wider transition-colors flex items-center gap-3">
-                🏛️ Hall of Fame
+            <a href="/hall_of_fame" class="text-slate-400 hover:text-amber-400 text-sm font-bold uppercase tracking-wider transition-colors flex items-center gap-3">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"/></svg>
+                Hall of Fame
             </a>
-            <a href="/reveal_kiosk" target="_blank" class="text-slate-300 hover:text-amber-500 text-sm font-bold uppercase tracking-wider transition-colors flex items-center gap-3">
+            <a href="/reveal_kiosk" target="_blank" class="text-slate-400 hover:text-amber-400 text-sm font-bold uppercase tracking-wider transition-colors flex items-center gap-3">
                 📽️ Motion Reveal
             </a>
         </div>
     </div>
-    
-    <!-- Sidebar Overlay -->
-    <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-[90] hidden fade-in backdrop-blur-sm"></div>
-
+    <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 z-[90] hidden backdrop-blur-sm"></div>
     <script>
         function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            if (sidebar.classList.contains('-translate-x-full')) {
-                sidebar.classList.remove('-translate-x-full');
-                overlay.classList.remove('hidden');
-            } else {
-                sidebar.classList.add('-translate-x-full');
-                overlay.classList.add('hidden');
-            }
+            const s = document.getElementById('sidebar'), o = document.getElementById('sidebarOverlay');
+            s.classList.toggle('-translate-x-full');
+            o.classList.toggle('hidden');
         }
     </script>
 
-    <!-- Top Navigation Bar -->
-    <nav class="bg-slate-900/95 border-b border-amber-600/30 sticky top-0 z-50 backdrop-blur-md">
+    <!-- Nav -->
+    <nav class="sticky top-0 z-50 border-b border-white/5 bg-[#080c14]/90 backdrop-blur-xl">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center space-x-6">
-                    <button onclick="toggleSidebar()" class="text-slate-300 hover:text-white transition-colors ml-2 mr-2 group">
-                        <svg class="w-6 h-6 group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            <div class="flex justify-between h-14">
+                <div class="flex items-center gap-3 sm:gap-5">
+                    <button onclick="toggleSidebar()" class="text-slate-500 hover:text-white transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                     </button>
-                    <div class="flex-shrink-0 flex items-center gap-2 pr-4 border-r border-slate-700/50">
-                        <svg class="h-8 w-auto text-amber-500 filter drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" viewBox="0 0 24 24" fill="currentColor">
+                    <div class="flex items-center gap-2.5 pr-3 sm:pr-5 border-r border-white/8">
+                        <svg class="h-6 w-auto text-amber-500 drop-shadow-[0_0_10px_rgba(245,158,11,0.6)]" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/>
                         </svg>
-                        <span class="text-xl font-bold font-serif text-white uppercase tracking-widest hidden md:block">The Crown</span>
+                        <span class="text-base font-bold font-serif text-white uppercase tracking-widest hidden sm:block">The Crown</span>
                     </div>
-                    <a href="/" class="text-amber-500 hover:text-amber-400 px-3 py-2 rounded-md text-sm font-bold uppercase tracking-wider relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-amber-500">🏆 Leaderboard</a>
-                    <a href="/matches" class="text-slate-300 hover:text-white hover:bg-slate-800 px-3 py-2 rounded-md text-sm font-bold uppercase tracking-wider transition-colors">⚔️ Matches</a>
-                    <a href="/live" target="_blank" class="text-slate-300 hover:text-amber-500 hover:bg-slate-800 px-3 py-2 rounded-md text-sm font-bold uppercase tracking-wider transition-colors">📡 Live</a>
-                </div>
-                
-                <div class="flex items-center space-x-4">
-                    {% if is_admin %}
-                        <span class="text-xs font-bold text-amber-500 uppercase tracking-wider py-2">Admin Mode</span>
-                        <a href="/admin/motions" class="text-[10px] font-bold text-amber-400 hover:text-amber-300 bg-amber-900/30 px-3 py-1 rounded border border-amber-700/50 transition-colors uppercase tracking-widest leading-tight text-center mt-1 flex items-center gap-1">🔐 Vault</a>
-                        {% if is_master %}
-                            <a href="/admin/settings" class="text-[10px] font-bold text-slate-300 hover:text-white bg-slate-800 px-3 py-1 rounded border border-slate-700 transition-colors uppercase tracking-widest leading-tight text-center mt-1 flex items-center gap-1">⚙️ Settings</a>
-                            <a href="/admin/users" class="text-[10px] font-bold text-indigo-400 hover:text-indigo-300 bg-indigo-900/30 px-3 py-1 rounded border border-indigo-700/50 transition-colors uppercase tracking-widest leading-tight text-center mt-1">Manage Users</a>
-                            <a href="/admin/audit" class="text-[10px] font-bold text-red-400 hover:text-red-300 bg-red-900/30 px-3 py-1 rounded border border-red-700/50 transition-colors uppercase tracking-widest leading-tight text-center mt-1">Logs</a>
-                        {% endif %}
-                        <a href="/logout" class="text-xs font-bold text-slate-300 hover:text-amber-500 bg-slate-800/50 px-3 py-1 rounded border border-slate-700 transition-colors uppercase tracking-widest mt-1">Logout</a>
-                    {% else %}
-                        <a href="/login" class="text-xs font-bold text-slate-400 hover:text-amber-500 transition-colors uppercase tracking-widest flex items-center gap-1">
-                            Admin Login
+                    <div class="hidden sm:flex items-center gap-4">
+                        <a href="/" class="text-amber-400 text-sm font-bold uppercase tracking-wider border-b-2 border-amber-500 pb-0.5">Leaderboard</a>
+                        <a href="/matches" class="text-slate-400 hover:text-white text-sm font-bold uppercase tracking-wider transition-colors">Matches</a>
+                        <a href="/live" target="_blank" class="text-slate-400 hover:text-amber-400 text-sm font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-green-400 live-dot"></span>Live
                         </a>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    {% if is_admin %}
+                        <span class="hidden sm:block text-[10px] font-bold text-amber-500/60 uppercase tracking-widest">Admin</span>
+                        <a href="/admin/motions" class="hidden sm:flex text-[10px] font-bold text-amber-400 hover:text-amber-300 bg-amber-500/10 px-2.5 py-1 rounded border border-amber-500/20 transition-colors uppercase tracking-widest">Vault</a>
+                        {% if is_master %}
+                            <a href="/admin/settings" class="hidden md:flex text-[10px] font-bold text-slate-400 hover:text-white bg-white/5 px-2.5 py-1 rounded border border-white/8 transition-colors uppercase tracking-widest">Settings</a>
+                            <a href="/admin/users" class="hidden md:flex text-[10px] font-bold text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 px-2.5 py-1 rounded border border-indigo-500/20 transition-colors uppercase tracking-widest">Users</a>
+                            <a href="/admin/audit" class="hidden md:flex text-[10px] font-bold text-red-400 hover:text-red-300 bg-red-500/10 px-2.5 py-1 rounded border border-red-500/20 transition-colors uppercase tracking-widest">Logs</a>
+                        {% endif %}
+                        <a href="/logout" class="text-[10px] font-bold text-slate-400 hover:text-white bg-white/5 px-2.5 py-1 rounded border border-white/8 transition-colors uppercase tracking-widest">Logout</a>
+                    {% else %}
+                        <a href="/login" class="text-xs font-bold text-slate-500 hover:text-amber-400 transition-colors uppercase tracking-widest">Admin Login</a>
                     {% endif %}
                 </div>
             </div>
         </div>
     </nav>
 
-    <div class="w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col items-center">
-        <!-- Messages -->
+    <div class="relative z-[1] w-full mx-auto px-4 sm:px-6 lg:px-8">
+
         {% with messages = get_flashed_messages() %}
           {% if messages %}
-            <div class="mb-6 w-full max-w-4xl space-y-2">
+            <div class="mt-6 max-w-3xl mx-auto space-y-2">
             {% for message in messages %}
-              <div class="p-4 text-sm text-green-200 rounded-lg bg-green-900/50 border border-green-500/50 glass font-bold text-center" role="alert">
-                {{ message }}
-              </div>
+              <div class="p-3 text-sm text-green-300 rounded-lg bg-green-500/10 border border-green-500/20 font-bold text-center">{{ message }}</div>
             {% endfor %}
             </div>
           {% endif %}
         {% endwith %}
 
-
-
         {% if data and data|length > 0 %}
-        <!-- Chart Section -->
-        <div class="glass shadow-2xl rounded-2xl p-6 mb-10 w-full max-w-6xl">
-            <h2 class="text-2xl font-bold text-amber-500 font-serif mb-4 flex items-center justify-center gap-2 text-center border-b border-slate-700/50 pb-4">
-                Top Qualified Performers (Total Prelim Points)
-            </h2>
-            <div class="relative w-full h-[350px]">
+
+        <!-- Hero -->
+        <div class="text-center py-14 hero-animate">
+            <p class="text-[10px] tracking-[0.7em] text-amber-500/40 uppercase font-bold mb-4">Live Tournament Rankings</p>
+            <h1 class="text-5xl md:text-7xl font-black font-serif text-white tracking-tight mb-6">The Crown</h1>
+            <div class="flex flex-wrap items-center justify-center gap-5 sm:gap-8 text-xs font-bold uppercase tracking-widest text-slate-500">
+                <div class="text-center">
+                    <div class="text-2xl font-black text-white mb-0.5">{{ data|length }}</div>
+                    <div>Candidates</div>
+                </div>
+                <div class="w-px h-8 bg-white/8"></div>
+                <div class="text-center">
+                    <div class="text-2xl font-black text-amber-500 mb-0.5">{{ data[:16]|length }}</div>
+                    <div>Qualified</div>
+                </div>
+                <div class="w-px h-8 bg-white/8"></div>
+                <div class="flex items-center gap-2 text-green-400">
+                    <span class="w-2 h-2 rounded-full bg-green-400 live-dot"></span>
+                    <span>Live</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="glass rounded-2xl p-6 mb-8 max-w-6xl mx-auto">
+            <div class="flex items-center justify-between mb-5">
+                <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest">Prelim Speaker Points — Top 16</h2>
+                <span class="text-[10px] text-slate-600 font-mono uppercase tracking-widest">Total marks</span>
+            </div>
+            <div class="relative w-full h-[180px] sm:h-[240px]">
                 <canvas id="performanceChart"></canvas>
             </div>
         </div>
-        
+
         <script>
             const fullData = {{ data|tojson }};
-            const chartData = fullData.slice(0, 16); 
-            
-            const labels = chartData.map(row => row['Candidate Name'] || 'Unknown');
-            const dataPoints = chartData.map(row => row['Total Marks_calculated'] || 0);
+            const chartData = fullData.slice(0, 16);
+            const labels = chartData.map(r => r['Alias'] || r['Candidate Name'] || 'Unknown');
+            const dataPoints = chartData.map(r => r['Total Marks_calculated'] || 0);
 
             const ctx = document.getElementById('performanceChart').getContext('2d');
+            const grad = ctx.createLinearGradient(0, 0, 0, 240);
+            grad.addColorStop(0, 'rgba(245,158,11,0.85)');
+            grad.addColorStop(1, 'rgba(245,158,11,0.15)');
+
             new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: labels,
+                    labels,
                     datasets: [{
-                        label: 'Total Speaker Points',
+                        label: 'Speaker Points',
                         data: dataPoints,
-                        backgroundColor: 'rgba(245, 158, 11, 0.8)',
-                        borderColor: 'rgba(245, 158, 11, 1)',
-                        borderWidth: 1,
-                        borderRadius: 3,
-                        hoverBackgroundColor: 'rgba(252, 211, 77, 1)',
+                        backgroundColor: grad,
+                        borderColor: 'rgba(245,158,11,0.9)',
+                        borderWidth: 0,
+                        borderRadius: 4,
+                        borderSkipped: false,
+                        hoverBackgroundColor: 'rgba(252,211,77,0.95)',
                     }]
                 },
                 options: {
@@ -184,162 +230,175 @@
                     scales: {
                         y: {
                             beginAtZero: false,
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { color: '#cbd5e1' }
+                            grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+                            ticks: { color: '#64748b', font: { family: 'Inter', size: 11 }, maxTicksLimit: 5 },
+                            border: { display: false }
                         },
                         x: {
                             grid: { display: false },
-                            ticks: { color: '#cbd5e1', maxRotation: 45, minRotation: 45 }
+                            ticks: { color: '#94a3b8', font: { family: 'Inter', size: 11 }, maxRotation: 40, minRotation: 40 },
+                            border: { display: false }
                         }
                     },
                     plugins: {
-                        legend: { labels: { color: '#e2e8f0', font: { family: 'Inter' } } }
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(15,23,42,0.95)',
+                            borderColor: 'rgba(245,158,11,0.3)',
+                            borderWidth: 1,
+                            titleColor: '#f59e0b',
+                            bodyColor: '#e2e8f0',
+                            padding: 10,
+                            titleFont: { family: 'Inter', weight: 'bold' }
+                        }
                     }
                 }
             });
         </script>
 
-        <!-- Table Section -->
-        <div class="flex justify-start w-full max-w-7xl mb-4 space-x-3 px-2">
-            <a href="/" class="px-5 py-2 bg-amber-600 text-slate-900 font-bold uppercase tracking-widest rounded shadow-lg text-xs">Preliminary Rankings</a>
-            <a href="/leaderboard/outrounds" class="px-5 py-2 bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200 font-bold uppercase tracking-widest rounded border border-slate-700 transition-colors text-xs">Outrounds Progression</a>
-        </div>
-        
-        <div class="glass shadow-2xl rounded-2xl overflow-hidden w-full max-w-7xl animate-[fadeIn_0.5s_ease-out]">
-            <div class="p-6 border-b border-slate-700/50 flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-800/80">
-                <div class="flex items-center gap-3">
-                    <svg class="h-6 w-6 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.984 3.984 0 01-2.022-.55l-1.07 1.637a1 1 0 01-1.682 0l-1.07-1.637A3.984 3.984 0 0110 15a3.984 3.984 0 01-2.022-.55l-1.07 1.637a1 1 0 01-1.682 0l-1.07-1.637A3.989 3.989 0 013.9 15a1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L10 4.323V3a1 1 0 011-1zM5.313 12.015L7.022 6.678l-1.89.945-.297.893a2.981 2.981 0 00.478 3.5zm9.374 0a2.981 2.981 0 00.478-3.5l-.297-.893-1.89-.945 1.709 5.338z" clip-rule="evenodd" />
-                    </svg>
-                    <h2 class="text-2xl font-bold text-amber-500 font-serif">Tournament Leaderboard</h2>
-                </div>
-                
-                <div class="relative w-full md:w-80">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="h-5 w-5 text-amber-500/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                    </div>
-                    <input type="text" id="searchInput" placeholder="Search Alias or Name..." class="block w-full pl-10 pr-3 py-2 border border-slate-600/50 rounded-lg leading-5 bg-slate-900/80 text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 sm:text-sm transition-all duration-300">
-                </div>
+        <!-- Tab row + Search -->
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3 px-1">
+            <div class="flex gap-2">
+                <a href="/" class="px-4 py-1.5 bg-amber-500 text-slate-900 font-bold uppercase tracking-widest rounded-lg text-xs shadow shadow-amber-500/20">Prelims</a>
+                <a href="/leaderboard/outrounds" class="px-4 py-1.5 bg-white/5 text-slate-400 hover:text-white hover:bg-white/8 font-bold uppercase tracking-widest rounded-lg border border-white/8 transition-colors text-xs">Outrounds</a>
             </div>
-            
+            <div class="relative w-full sm:w-72">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <input type="text" id="searchInput" placeholder="Search candidate or alias…" class="w-full pl-9 pr-3 py-1.5 bg-white/5 border border-white/8 rounded-lg text-sm text-slate-300 placeholder-slate-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-all">
+            </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="glass rounded-2xl overflow-hidden max-w-7xl mx-auto mb-12">
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-slate-700/50" id="resultsTable">
-                    <thead class="bg-slate-900/80">
-                        <tr>
-                            <th scope="col" class="px-5 py-4 text-left text-xs font-bold text-amber-500 uppercase tracking-wider sticky left-0 bg-slate-900/90 z-10 w-16">Rank</th>
-                            <th scope="col" class="px-5 py-4 text-left text-xs font-bold text-amber-500 uppercase tracking-wider sticky left-16 bg-slate-900/90 z-10 w-64 min-w-[16rem]">Candidate Name</th>
-                            <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-slate-400 uppercase tracking-wider">R1</th>
-                            <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-slate-400 uppercase tracking-wider">R2</th>
-                            <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-slate-400 uppercase tracking-wider">R3</th>
-                            <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-slate-400 uppercase tracking-wider">R4</th>
-                            <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-slate-400 uppercase tracking-wider">R5</th>
-                            <th scope="col" class="px-3 py-4 text-center text-xs font-bold text-slate-400 uppercase tracking-wider">R6</th>
-                            
-                            <th scope="col" class="px-4 py-4 text-center text-xs font-bold text-amber-400 uppercase tracking-wider">Tot. Marks</th>
-                            <th scope="col" class="px-4 py-4 text-center text-xs font-bold text-amber-500 uppercase tracking-wider bg-slate-800/40">Total Wins</th>
-                            <th scope="col" class="px-5 py-4 text-center text-xs font-bold text-amber-400 uppercase tracking-wider">Status</th>
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="border-b border-white/5 bg-white/3">
+                            <th class="px-4 py-3 text-[10px] font-bold text-slate-600 uppercase tracking-widest text-center w-12">#</th>
+                            <th class="px-4 py-3 text-[10px] font-bold text-slate-600 uppercase tracking-widest text-left">Candidate</th>
+                            {% for r in ['R1','R2','R3','R4','R5','R6'] %}
+                            <th class="px-3 py-3 text-[10px] font-bold text-slate-600 uppercase tracking-widest text-center">{{ r }}</th>
+                            {% endfor %}
+                            <th class="px-3 py-3 text-[10px] font-bold text-amber-600/60 uppercase tracking-widest text-center">Marks</th>
+                            <th class="px-3 py-3 text-[10px] font-bold text-slate-600 uppercase tracking-widest text-center">Wins</th>
+                            <th class="px-3 py-3 text-[10px] font-bold text-slate-600 uppercase tracking-widest text-center">Status</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-700/30 bg-transparent" id="tableBody">
-                        {% for row in data %}
-                        <tr class="hover:bg-slate-700/40 transition-colors duration-200 group {% if loop.index <= 16 %}top-16-row{% endif %}">
-                            <td class="px-5 py-4 whitespace-nowrap text-sm font-bold text-slate-400 sticky left-0 group-hover:bg-slate-800 bg-slate-900/80 z-10 backdrop-blur-sm">#{{ loop.index }}</td>
-                            <td class="px-5 py-4 whitespace-nowrap text-sm font-bold text-white group-hover:text-amber-300 transition-colors sticky left-16 group-hover:bg-slate-800 bg-slate-900/80 z-10 backdrop-blur-sm shadow-[2px_0px_5px_0px_rgba(0,0,0,0.2)]">
-                                <div class="flex items-center gap-3">
-                                    <a href="/candidate/{{ row.get('Candidate Name') }}" class="w-10 h-10 rounded-full overflow-hidden bg-slate-800 flex-shrink-0 flex items-center justify-center border border-slate-700 text-amber-500 font-black text-sm shadow-[0_0_10px_rgba(245,158,11,0.2)] hover:ring-2 hover:ring-amber-500 transition-all cursor-pointer block">
-                                        {% if row.get('Avatar') %}
-                                            <img src="{{ url_for('static', filename='avatars/' ~ row.get('Avatar')) }}?t={{ range(1, 100000) | random }}" class="w-full h-full object-cover">
-                                        {% else %}
-                                            {{ row.get('Candidate Name')[0] }}{{ row.get('Candidate Name').split(' ')[1][0] if ' ' in row.get('Candidate Name') else '' }}
-                                        {% endif %}
+                    <tbody id="tableBody">
+                    {% set max_marks = data[0]['Total Marks_calculated'] if data else 1 %}
+                    {% for row in data %}
+                    {% set rank = loop.index %}
+                    {% set wins = row.get('WinsNum', 0) %}
+                    {% set marks_val = row.get('Total Marks_calculated', 0) %}
+
+                    <tr class="data-row border-b border-white/4 last:border-0
+                        {% if rank == 1 %}row-rank-1{% elif rank == 2 %}row-rank-2{% elif rank == 3 %}row-rank-3{% elif rank <= 16 %}row-top16{% endif %}"
+                        style="animation: rowUp 0.45s ease-out {{ loop.index0 * 0.03 }}s both"
+                        data-name="{{ row.get('Candidate Name', '')|lower }}"
+                        data-alias="{{ row.get('Alias', '')|lower }}">
+
+                        <!-- Rank badge -->
+                        <td class="px-4 py-3.5 text-center">
+                            {% if rank == 1 %}
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center font-black text-slate-900 text-sm rank-1-glow mx-auto">1</div>
+                            {% elif rank == 2 %}
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-slate-300 to-slate-500 flex items-center justify-center font-black text-slate-900 text-sm mx-auto">2</div>
+                            {% elif rank == 3 %}
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-orange-800 flex items-center justify-center font-black text-white text-sm mx-auto">3</div>
+                            {% else %}
+                            <span class="text-sm font-bold text-slate-600">{{ rank }}</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Name + Avatar -->
+                        <td class="px-4 py-3.5">
+                            <div class="flex items-center gap-3">
+                                <a href="/candidate/{{ row.get('Candidate Name') }}" class="w-9 h-9 rounded-full overflow-hidden bg-slate-800 flex-shrink-0 flex items-center justify-center border border-white/8 text-amber-500 font-black text-xs hover:ring-2 hover:ring-amber-500 transition-all cursor-pointer block">
+                                    {% if row.get('Avatar') %}
+                                        <img src="{{ url_for('static', filename='avatars/' ~ row.get('Avatar')) }}?t={{ range(1, 100000) | random }}" class="w-full h-full object-cover">
+                                    {% else %}
+                                        {{ row.get('Candidate Name')[0] }}{{ row.get('Candidate Name').split(' ')[1][0] if ' ' in row.get('Candidate Name') else '' }}
+                                    {% endif %}
+                                </a>
+                                <div class="min-w-0">
+                                    <a href="/candidate/{{ row.get('Candidate Name') }}" class="block font-bold text-sm {% if rank <= 3 %}text-white{% else %}text-slate-200{% endif %} hover:text-amber-400 transition-colors truncate leading-tight">
+                                        {{ row.get('Candidate Name', 'Unknown') }}
                                     </a>
-                                    <div class="flex flex-col">
-                                        <a href="/candidate/{{ row.get('Candidate Name') }}" class="hover:underline tracking-wide">
-                                            {{ row.get('Candidate Name', 'Unknown') }}
-                                        </a>
-                                        {% if row.get('Alias') %}
-                                        <span class="text-xs text-amber-600/80 alias-tag leading-tight mt-0.5">"{{ row.get('Alias') }}"</span>
-                                        {% endif %}
-                                    </div>
+                                    {% if row.get('Alias') %}
+                                    <span class="text-[10px] text-amber-600/70 alias-tag leading-tight">"{{ row.get('Alias') }}"</span>
+                                    {% endif %}
                                 </div>
-                            </td>
-                            
-                            <!-- Prelims -->
-                            <td class="px-3 py-4 text-center whitespace-nowrap text-sm text-slate-300">{{ row.get('R1', '-') }}</td>
-                            <td class="px-3 py-4 text-center whitespace-nowrap text-sm text-slate-300">{{ row.get('R2', '-') }}</td>
-                            <td class="px-3 py-4 text-center whitespace-nowrap text-sm text-slate-300">{{ row.get('R3', '-') }}</td>
-                            <td class="px-3 py-4 text-center whitespace-nowrap text-sm text-slate-300">{{ row.get('R4', '-') }}</td>
-                            <td class="px-3 py-4 text-center whitespace-nowrap text-sm text-slate-300">{{ row.get('R5', '-') }}</td>
-                            <td class="px-3 py-4 text-center whitespace-nowrap text-sm text-slate-300">{{ row.get('R6', '-') }}</td>
-                            
-                            <!-- Computed -->
-                            <td class="px-4 py-4 text-center whitespace-nowrap text-sm font-bold text-amber-500">{{ row.get('Total Marks', '0.00') }}</td>
-                            <td class="px-4 py-4 text-center whitespace-nowrap text-lg font-black {% if row.get('WinsNum', 0) >= 4 %}text-green-400{% else %}text-slate-400{% endif %} bg-slate-800/40">{{ row.get('Wins', '0') }}</td>
-                            
-                            <!-- Badges -->
-                            <td class="px-5 py-4 text-center whitespace-nowrap text-xs font-bold">
-                                {% if loop.index <= 16 %}
-                                    <span class="px-3 py-1 inline-flex leading-5 rounded-full bg-amber-900/40 text-amber-400 border border-amber-600/50">
-                                        Top 16
-                                    </span>
-                                {% else %}
-                                    <span class="px-3 py-1 inline-flex leading-5 rounded-full bg-slate-800 text-slate-500 border border-slate-700">
-                                        Eliminated
-                                    </span>
-                                {% endif %}
-                            </td>
-                        </tr>
+                            </div>
+                        </td>
+
+                        <!-- Prelim round marks -->
+                        {% for r in ['R1','R2','R3','R4','R5','R6'] %}
+                        <td class="px-3 py-3.5 text-center">
+                            {% set v = row.get(r) %}
+                            {% if v %}
+                            <span class="text-sm font-bold {% if rank <= 3 %}text-amber-400{% else %}text-slate-400{% endif %}">{{ v }}</span>
+                            {% else %}
+                            <span class="text-slate-700 text-xs">—</span>
+                            {% endif %}
+                        </td>
                         {% endfor %}
+
+                        <!-- Total marks + bar -->
+                        <td class="px-3 py-3.5 text-center">
+                            <span class="text-sm font-black {% if rank == 1 %}text-amber-400{% elif rank <= 3 %}text-amber-500{% else %}text-slate-300{% endif %}">{{ row.get('Total Marks', '0.00') }}</span>
+                            <div class="marks-bar w-10 mx-auto mt-1">
+                                <div class="marks-fill" style="width: {{ ((marks_val / (max_marks if max_marks > 0 else 1)) * 100)|round }}%"></div>
+                            </div>
+                        </td>
+
+                        <!-- Wins as pips -->
+                        <td class="px-3 py-3.5 text-center">
+                            <span class="text-sm font-black {% if wins >= 4 %}text-green-400{% else %}text-slate-400{% endif %}">{{ wins }}</span>
+                            <div class="flex gap-0.5 justify-center mt-1">
+                                {% for i in range(6) %}
+                                <span class="w-1.5 h-1.5 rounded-full {% if i < wins %}pip-on{% else %}pip-off{% endif %}"></span>
+                                {% endfor %}
+                            </div>
+                        </td>
+
+                        <!-- Status badge -->
+                        <td class="px-3 py-3.5 text-center">
+                            {% if rank <= 16 %}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/20">Top 16</span>
+                            {% else %}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-white/3 text-slate-600 border border-white/5">Out</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
-        {% else %}
-            <!-- No Data State -->
-            <div class="text-center py-20 bg-slate-800/30 rounded-2xl border border-slate-700/30 w-full max-w-4xl mx-auto mt-6">
-                <svg class="mx-auto h-16 w-16 text-slate-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-                <h3 class="text-2xl font-serif text-slate-300 mb-2">No Candidates Registered</h3>
-                <p class="text-slate-500 mb-6">
-                    {% if is_admin %}
-                        Register candidates in the admin panel above to populate the leaderboards!
-                    {% else %}
-                        The tournament roster is currently empty.
-                    {% endif %}
-                </p>
-            </div>
-        {% endif %}
 
+        {% else %}
+        <!-- Empty state -->
+        <div class="text-center py-32">
+            <div class="w-16 h-16 rounded-full bg-white/4 flex items-center justify-center mx-auto mb-6 border border-white/8">
+                <svg class="w-8 h-8 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5z"/></svg>
+            </div>
+            <h2 class="text-2xl font-serif font-bold text-slate-400 mb-2">No candidates yet</h2>
+            <p class="text-slate-600 text-sm">
+                {% if is_admin %}Head to Matches to register candidates.{% else %}The tournament roster is empty.{% endif %}
+            </p>
+        </div>
+        {% endif %}
     </div>
 
     <script>
-        // Animations
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(10px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-        `;
-        document.head.appendChild(style);
-
-        // Real-time table search (matches Name or Alias)
         const searchInput = document.getElementById('searchInput');
         if (searchInput) {
             searchInput.addEventListener('input', function() {
-                const filter = this.value.toLowerCase();
-                const rows = document.querySelectorAll('#tableBody tr');
-                
-                rows.forEach(row => {
-                    const candidateSection = row.cells[1] ? row.cells[1].textContent.toLowerCase() : '';
-                    if (candidateSection.includes(filter)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
+                const q = this.value.toLowerCase().trim();
+                document.querySelectorAll('#tableBody tr.data-row').forEach(row => {
+                    const name = row.getAttribute('data-name') || '';
+                    const alias = row.getAttribute('data-alias') || '';
+                    row.style.display = (!q || name.includes(q) || alias.includes(q)) ? '' : 'none';
                 });
             });
         }
